@@ -28,7 +28,7 @@ class BasicInstructionSet:
         op2 = None
         step = 0
 
-        nop = cpu.nops.get(str(cpu.genome[cpu.flow+1]), None)
+        nop = cpu.nops.get(cpu.genome[cpu.flow+1], None)
         if nop is not None:
             op1 = cpu.registers[nop]
             op2 = cpu.registers[cpu.nop_complement[nop]]
@@ -41,7 +41,7 @@ class BasicInstructionSet:
 
     #figure out which register to use
     def which_register(self, cpu):
-        nop = cpu.nops.get(str(cpu.genome[cpu.flow+1]), None)
+        nop = cpu.nops.get(cpu.genome[cpu.flow+1], None)
 
         if nop is not None:
             return nop, 1
@@ -235,7 +235,7 @@ class BasicInstructionSet:
         self.inst_set['p'] = self.nand
 
         #let's define nops and nop complements for  quick lookup
-        self.nops = {str(self.nop_a): 0, str(self.nop_b): 1, str(self.nop_c):2 }
+        self.nops = {self.nop_a: 0, self.nop_b: 1, self.nop_c:2 }
 
         self.nop_complement = (1, 2, 0)
 
