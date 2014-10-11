@@ -13,7 +13,7 @@ class BasicCPU:
 
         self.ctx = ctx
 
-        self.registers = [1, 0, 1]
+        self.registers = [0,0,0]
 
         self.inst_set = inst_set
         self.nops = inst_set.nops
