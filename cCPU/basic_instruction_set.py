@@ -213,6 +213,26 @@ class BasicInstructionSet:
         cpu.increment_flow(1+extra_step)
         return None
 
+    #allocate genome space -- need a max length so that we don't run off the rails
+    def h_alloc(self, cpu):
+        #print cpu.genome
+        new_len = cpu.genome_len * 2
+        if new_len > cpu.genome_max_len:
+            new_len = cpu.genome_max_len
+
+        for i in xrange(cpu.genome_len, new_len):
+            cpu.genome.append(self.nop_c)
+
+        cpu.registers[0] = new_len
+        cpu.genome_len = new_len
+        #print cpu.genome
+        #print cpu.registers
+        #print cpu.genome_len, len(cpu.genome)
+
+        cpu.increment_flow()
+
+        return None
+
 
     #for now we will keep the instruction set simply as a list
     #this function will return a dict with all of the instructions in set
@@ -245,6 +265,8 @@ class BasicInstructionSet:
         self.inst_set['p'] = self.nand
 
         self.inst_set['q'] = self.io
+
+        self.inst_set['r'] = self.h_alloc
 
         #let's define nops and nop complements for  quick lookup
         self.nops = {self.nop_a: 0, self.nop_b: 1, self.nop_c:2 }

@@ -20,9 +20,9 @@ def main():
 
 
 
-    cpu = BasicCPU.BasicCPU(ctx, inst_set, build_genome(inst_set, 'pkiagfbqqcccc'))
+    cpu = BasicCPU.BasicCPU(ctx, inst_set, build_genome(inst_set, 'ccccr'))
 
-    for x in xrange(50):
+    for x in xrange(15):
         cpu.step()
         print cpu.flow
 

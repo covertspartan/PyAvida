@@ -21,6 +21,7 @@ class BasicCPU:
 
         self.genome = genome
         self.genome_len = len(genome)
+        self.genome_max_len = 1024
 
         self.read = 0
         self.write = 0
