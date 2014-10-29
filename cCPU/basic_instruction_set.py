@@ -1,4 +1,4 @@
-from cContext import context
+from cContext import ccontext
 from cCPU import BasicCPU
 
 
@@ -17,7 +17,7 @@ class BasicInstructionSet:
 
     #a comment
     def nop_c(self, cpu):
-        print "nop_c"
+        #print "nop_c"
         cpu.increment_flow()
         return 3
 
@@ -81,8 +81,8 @@ class BasicInstructionSet:
 
         del cpu.stacks[cpu.curr_stack][-1]
 
-        print cpu.registers
-        print cpu.stacks
+        #print cpu.registers
+        #print cpu.stacks
 
         cpu.increment_flow(1+extra_step)
         return None
@@ -92,8 +92,8 @@ class BasicInstructionSet:
 
         cpu.stacks[cpu.curr_stack].append(cpu.registers[register])
 
-        print cpu.registers
-        print cpu.stacks
+        #print cpu.registers
+        #print cpu.stacks
 
         cpu.increment_flow(1+extra_step)
         return None
@@ -118,7 +118,7 @@ class BasicInstructionSet:
 
         cpu.increment_flow(1+extra_step)
 
-        print cpu.registers
+        #print cpu.registers
 
         return None
 
@@ -127,7 +127,7 @@ class BasicInstructionSet:
 
         cpu.registers[reg1] >>= 1
 
-        print cpu.registers
+        #print cpu.registers
 
         cpu.increment_flow(1+extra_step)
 
@@ -139,18 +139,19 @@ class BasicInstructionSet:
         cpu.registers[reg1] <<= 1
         cpu.registers[reg1] &= 0xffffffff
 
-        print bin(cpu.registers[reg1])
+        #print bin(cpu.registers[reg1])
 
         cpu.increment_flow(1+extra_step)
 
         return None
+
     def inc(self, cpu):
         reg1, extra_step = self.which_register(cpu)
 
         cpu.registers[reg1] += 1
         cpu.registers[reg1] &= 0xffffffff
 
-        print cpu.registers
+        #print cpu.registers
 
         cpu.increment_flow(1+extra_step)
 
@@ -161,7 +162,7 @@ class BasicInstructionSet:
 
         cpu.registers[reg1] -= 1
 
-        print bin(cpu.registers[1])
+        #print bin(cpu.registers[1])
 
         cpu.increment_flow(1+extra_step)
 
@@ -173,7 +174,7 @@ class BasicInstructionSet:
         cpu.registers[reg1] = cpu.registers[1] + cpu.registers[2]
         cpu.registers[reg1] &= 0xffffffff
 
-        print cpu.registers
+        #print cpu.registers
 
         cpu.increment_flow(1+extra_step)
 
@@ -185,7 +186,7 @@ class BasicInstructionSet:
         cpu.registers[reg1] = cpu.registers[2] - cpu.registers[1]
         cpu.registers[reg1] &= 0xffffffff
 
-        print cpu.registers
+        #print cpu.registers
 
         cpu.increment_flow(1+extra_step)
 
@@ -193,14 +194,23 @@ class BasicInstructionSet:
 
     def nand(self, cpu):
         reg1, extra_step = self.which_register(cpu)
-        print bin(cpu.registers[1])
-        print bin(cpu.registers[2])
+        #print bin(cpu.registers[1])
+        #print bin(cpu.registers[2])
         cpu.registers[reg1] = ~(cpu.registers[1] & cpu.registers[2]) & 0xffffffff
 
-        print bin(cpu.registers[reg1])
+        #print bin(cpu.registers[reg1])
 
         cpu.increment_flow(1+extra_step)
 
+        return None
+
+    def io(self, cpu):
+        reg1, extra_step = self.which_register(cpu)
+
+        cpu.outputs.append(cpu.registers[reg1])
+        cpu.registers[reg1] = cpu.next_input()
+
+        cpu.increment_flow(1+extra_step)
         return None
 
 
@@ -233,6 +243,8 @@ class BasicInstructionSet:
         self.inst_set['o'] = self.sub
 
         self.inst_set['p'] = self.nand
+
+        self.inst_set['q'] = self.io
 
         #let's define nops and nop complements for  quick lookup
         self.nops = {self.nop_a: 0, self.nop_b: 1, self.nop_c:2 }

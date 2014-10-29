@@ -1,4 +1,4 @@
-from cContext import context
+from cContext import ccontext
 
 
 #the instruction set has been de-coupled from the cpu for two reasons
@@ -9,11 +9,11 @@ from cContext import context
 class BasicCPU:
 
 
-    def __init__(self, ctx, inst_set, genome=[]):
+    def __init__(self, ctx, inst_set, genome=None):
 
         self.ctx = ctx
 
-        self.registers = [0,0,0]
+        self.registers = [0, 0, 0]
 
         self.inst_set = inst_set
         self.nops = inst_set.nops

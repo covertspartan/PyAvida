@@ -1,5 +1,5 @@
 from cCPU import BasicCPU
-from cContext import context
+from cContext import ccontext
 from cCPU.basic_instruction_set import BasicInstructionSet
 
 
@@ -14,13 +14,13 @@ def build_genome(inst_set, string):
 
 
 def main():
-    ctx = context.context(1)
+    ctx = ccontext.cContext(1)
 
     inst_set = BasicInstructionSet()
 
 
 
-    cpu = BasicCPU.BasicCPU(ctx, inst_set, build_genome(inst_set, 'pkiagfbcccc'))
+    cpu = BasicCPU.BasicCPU(ctx, inst_set, build_genome(inst_set, 'pkiagfbqqcccc'))
 
     for x in xrange(50):
         cpu.step()
