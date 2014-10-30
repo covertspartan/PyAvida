@@ -8,7 +8,6 @@ from cContext import ccontext
 
 class BasicCPU:
 
-
     def __init__(self, ctx, inst_set, genome=None):
 
         self.ctx = ctx
@@ -26,6 +25,9 @@ class BasicCPU:
         self.read = 0
         self.write = 0
         self.flow = 0
+
+        self.stackA = []
+        self.stackB = []
 
         self.inputs = (int(self.ctx.random.getrandbits(32)),
                        int(self.ctx.random.getrandbits(32)),

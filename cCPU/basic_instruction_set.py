@@ -233,6 +233,20 @@ class BasicInstructionSet:
 
         return None
 
+    #this makes no sense until with have a copy operation -- implement last
+    def h_divide(self, cpu):
+
+        return None
+
+    def h_copy(self, cpu):
+        cpu.genome[cpu.write] = cpu.genome[cpu.read]
+        cpu.increment_flow()
+        return None
+
+    def h_search(self, cpu):
+
+
+        return None
 
     #for now we will keep the instruction set simply as a list
     #this function will return a dict with all of the instructions in set
@@ -267,9 +281,13 @@ class BasicInstructionSet:
         self.inst_set['q'] = self.io
 
         self.inst_set['r'] = self.h_alloc
+        self.inst_set['s'] = self.h_divide
+        self.inst_set['t'] = self.h_copy
+
+
 
         #let's define nops and nop complements for  quick lookup
-        self.nops = {self.nop_a: 0, self.nop_b: 1, self.nop_c:2 }
+        self.nops = {self.nop_a: 0, self.nop_b: 1, self.nop_c: 2}
 
         self.nop_complement = (1, 2, 0)
 
