@@ -8,17 +8,17 @@ from cCPU import BasicCPU
 class BasicInstructionSet:
 
     def nop_a(self, cpu):
-        cpu.increment_flow()
+        cpu.increment_ip()
         return 1
 
     def nop_b(self, cpu):
-        cpu.increment_flow()
+        cpu.increment_ip()
         return 2
 
     #a comment
     def nop_c(self, cpu):
         #print "nop_c"
-        cpu.increment_flow()
+        cpu.increment_ip()
         return 3
 
     #figure out which operands we must use and return their register values
@@ -28,7 +28,7 @@ class BasicInstructionSet:
         op2 = None
         step = 0
 
-        nop = cpu.nops.get(cpu.genome[cpu.flow+1], None)
+        nop = cpu.nops.get(cpu.genome[cpu.ip+1], None)
         if nop is not None:
             op1 = cpu.registers[nop]
             op2 = cpu.registers[cpu.nop_complement[nop]]
@@ -43,7 +43,7 @@ class BasicInstructionSet:
     def findLabel(self, cpu):
         label = []
         len = 0
-        pos = cpu.flow + 1
+        pos = cpu.ip + 1
 
         while pos < cpu.genome_len:
             nop = cpu.nops.get(cpu.genome[pos], None)
@@ -68,7 +68,7 @@ class BasicInstructionSet:
     #search for a given label, normally used with h_search
     def findLabelEndPos(self, cpu, search_label):
         match_len = len(search_label)
-        start_pos = cpu.flow + match_len
+        start_pos = cpu.ip + match_len
         curr_pos = 0
 
         #search to the end of the string until we find the matching label
@@ -93,7 +93,7 @@ class BasicInstructionSet:
 
     #figure out which register to use
     def which_register(self, cpu):
-        nop = cpu.nops.get(cpu.genome[cpu.flow+1], None)
+        nop = cpu.nops.get(cpu.genome[cpu.ip+1], None)
 
         if nop is not None:
             return nop, 1
@@ -110,7 +110,7 @@ class BasicInstructionSet:
         else:
             step += extra_step
 
-        cpu.increment_flow(step)
+        cpu.increment_ip(step)
         return None
 
 
@@ -123,7 +123,7 @@ class BasicInstructionSet:
         else:
             step += extra_step + 1
 
-        cpu.increment_flow(step)
+        cpu.increment_ip(step)
         return None
 
     def pop(self, cpu):
@@ -136,7 +136,7 @@ class BasicInstructionSet:
         #print cpu.registers
         #print cpu.stacks
 
-        cpu.increment_flow(1+extra_step)
+        cpu.increment_ip(1+extra_step)
         return None
 
     def push(self, cpu):
@@ -147,14 +147,14 @@ class BasicInstructionSet:
         #print cpu.registers
         #print cpu.stacks
 
-        cpu.increment_flow(1+extra_step)
+        cpu.increment_ip(1+extra_step)
         return None
 
     def swap_stk(self, cpu):
 
         cpu.curr_stack = int(~cpu.curr_stack)
 
-        cpu.increment_flow(1)
+        cpu.increment_ip(1)
 
         return None
 
@@ -168,7 +168,7 @@ class BasicInstructionSet:
         cpu.registers[reg2] = val1
         cpu.registers[reg1] = val2
 
-        cpu.increment_flow(1+extra_step)
+        cpu.increment_ip(1+extra_step)
 
         #print cpu.registers
 
@@ -181,7 +181,7 @@ class BasicInstructionSet:
 
         #print cpu.registers
 
-        cpu.increment_flow(1+extra_step)
+        cpu.increment_ip(1+extra_step)
 
         return None
 
@@ -193,7 +193,7 @@ class BasicInstructionSet:
 
         #print bin(cpu.registers[reg1])
 
-        cpu.increment_flow(1+extra_step)
+        cpu.increment_ip(1+extra_step)
 
         return None
 
@@ -205,7 +205,7 @@ class BasicInstructionSet:
 
         #print cpu.registers
 
-        cpu.increment_flow(1+extra_step)
+        cpu.increment_ip(1+extra_step)
 
         return None
 
@@ -216,7 +216,7 @@ class BasicInstructionSet:
 
         #print bin(cpu.registers[1])
 
-        cpu.increment_flow(1+extra_step)
+        cpu.increment_ip(1+extra_step)
 
         return None
 
@@ -228,7 +228,7 @@ class BasicInstructionSet:
 
         #print cpu.registers
 
-        cpu.increment_flow(1+extra_step)
+        cpu.increment_ip(1+extra_step)
 
         return None
 
@@ -240,7 +240,7 @@ class BasicInstructionSet:
 
         #print cpu.registers
 
-        cpu.increment_flow(1+extra_step)
+        cpu.increment_ip(1+extra_step)
 
         return None
 
@@ -252,7 +252,7 @@ class BasicInstructionSet:
 
         #print bin(cpu.registers[reg1])
 
-        cpu.increment_flow(1+extra_step)
+        cpu.increment_ip(1+extra_step)
 
         return None
 
@@ -262,7 +262,7 @@ class BasicInstructionSet:
         cpu.outputs.append(cpu.registers[reg1])
         cpu.registers[reg1] = cpu.next_input()
 
-        cpu.increment_flow(1+extra_step)
+        cpu.increment_ip(1+extra_step)
         return None
 
     #allocate genome space -- need a max length so that we don't run off the rails
@@ -281,7 +281,7 @@ class BasicInstructionSet:
         #print cpu.registers
         #print cpu.genome_len, len(cpu.genome)
 
-        cpu.increment_flow()
+        cpu.increment_ip()
 
         return None
 
@@ -292,7 +292,7 @@ class BasicInstructionSet:
 
     def h_copy(self, cpu):
         cpu.genome[cpu.write] = cpu.genome[cpu.read]
-        cpu.increment_flow()
+        cpu.increment_ip()
         return None
 
     def h_search(self, cpu):
@@ -308,10 +308,9 @@ class BasicInstructionSet:
         if search_pos is not None:
             #print "Found!!!!"
             cpu.flow = search_pos % cpu.genome_len
-            return None
 
         #this will only happen is complement label is not found
-        cpu.increment_flow(extra_steps+1)
+        cpu.increment_ip(extra_steps+1)
 
         return None
 

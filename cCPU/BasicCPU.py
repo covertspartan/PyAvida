@@ -25,6 +25,7 @@ class BasicCPU:
         self.read = 0
         self.write = 0
         self.flow = 0
+        self.ip = 0
 
         self.stackA = []
         self.stackB = []
@@ -47,14 +48,15 @@ class BasicCPU:
         self.input_ptr = (curr + 1) % self.input_len
         return self.inputs[curr]
 
-    def increment_flow(self, steps=1):
-        self.flow = (self.flow + steps) % self.genome_len
+    def increment_ip(self, steps=1):
+        self.ip = (self.ip + steps) % self.genome_len
 
     #resets the CPUs state, including reinitializing inputs, but it does NOT change the instruction set.
     def reset(self):
         self.read = 0
         self.write = 0
         self.flow = 0
+        self.ip = 0
 
         self.inputs = (int(self.ctx.random.getrandbits(32)),
                        int(self.ctx.random.getrandbits(32)),
@@ -74,5 +76,5 @@ class BasicCPU:
         self.registers = [0, 0, 0]
 
     def step(self):
-        print self.genome[self.flow]
-        self.genome[self.flow](self)
+        print self.genome[self.ip]
+        self.genome[self.ip](self)

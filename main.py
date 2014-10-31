@@ -21,10 +21,10 @@ def main():
     cpu = BasicCPU.BasicCPU(ctx, inst_set, build_genome(inst_set, 'ucabcrabcaaa'))
 
     for x in xrange(15):
-        print cpu.flow
+        print cpu.ip, cpu.flow
         cpu.step()
 
-    print cpu.flow
+    print cpu.ip, cpu.flow
     return None
 
 if __name__=="__main__":
