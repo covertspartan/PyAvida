@@ -47,7 +47,7 @@ class BasicCPU:
         self.input_ptr = (curr + 1) % self.input_len
         return self.inputs[curr]
 
-    def increment_flow(self,steps=1):
+    def increment_flow(self, steps=1):
         self.flow = (self.flow + steps) % self.genome_len
 
     #resets the CPUs state, including reinitializing inputs, but it does NOT change the instruction set.
@@ -73,6 +73,6 @@ class BasicCPU:
 
         self.registers = [0, 0, 0]
 
-
     def step(self):
+        print self.genome[self.flow]
         self.genome[self.flow](self)

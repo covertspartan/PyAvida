@@ -18,14 +18,13 @@ def main():
 
     inst_set = BasicInstructionSet()
 
-
-
-    cpu = BasicCPU.BasicCPU(ctx, inst_set, build_genome(inst_set, 'ccccr'))
+    cpu = BasicCPU.BasicCPU(ctx, inst_set, build_genome(inst_set, 'ucabcrabcaaa'))
 
     for x in xrange(15):
-        cpu.step()
         print cpu.flow
+        cpu.step()
 
+    print cpu.flow
     return None
 
 if __name__=="__main__":
