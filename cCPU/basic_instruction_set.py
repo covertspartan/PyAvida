@@ -88,7 +88,7 @@ class BasicInstructionSet:
                 curr_pos = 0
 
         if curr_pos is match_len:
-            return start_pos
+            return start_pos + match_len
 
         return None
 
@@ -286,14 +286,30 @@ class BasicInstructionSet:
 
         return None
 
-    #this makes no sense until with have a copy operation -- implement last
+    #big finish
     def h_divide(self, cpu):
+
+        #this only works if the write head is in the correct place
+        if cpu.write is not cpu.read:
+            offspring = cpu.genome[cpu.read:cpu.write]
+            cpu.genome = cpu.genome[0:cpu.read]
+            cpu.genome_len = len(cpu.genome)
+            cpu.reset()
+
+            print "offspring ({:d}): {:s}".format(len(offspring), offspring)
+            print "genome ({:d}): {:s}".format(len(cpu.genome), cpu.genome)
+            quit()
 
         return None
 
     def h_copy(self, cpu):
         cpu.genome[cpu.write] = cpu.genome[cpu.read]
+        cpu.copy_buffer.append(cpu.genome[cpu.read])
+
+        cpu.write += 1
+        cpu.read += 1
         cpu.increment_ip()
+
         return None
 
     def h_search(self, cpu):
@@ -303,7 +319,10 @@ class BasicInstructionSet:
         if label is None:
             cpu.registers[1] = 0
             cpu.registers[2] = 0
+            cpu.flow = cpu.ip + 1 % cpu.genome_len
             cpu.increment_ip(extra_steps+1)
+            return None
+
 
 
         complement_label = [cpu.nop_complement[i] for i in label]
@@ -326,7 +345,76 @@ class BasicInstructionSet:
         return None
 
     def mov_head(self, cpu):
-        cpu.ip = cpu.flow
+        nop = cpu.nops.get(cpu.genome[cpu.ip+1], None)
+        step = 2
+
+        if nop is None:
+            step = 1
+            nop = 0
+
+        cpu.changeHead(nop,cpu.flow)
+
+        if nop is not 0:
+            cpu.increment_ip(step)
+
+        return None
+
+    def jmp_head(self, cpu):
+        nop = cpu.nops.get(cpu.genome[cpu.ip+1], None)
+        step = 2
+
+        if nop is None:
+            step = 1
+            nop = 0
+
+        cpu.changeHead(nop, cpu.getHead(2) + cpu.registers[2] % cpu.genome_len)
+
+        if nop is not 0:
+            cpu.increment_ip(step)
+        return None
+
+    def get_head(self, cpu):
+        nop = cpu.nops.get(cpu.genome[cpu.ip+1], None)
+        step = 2
+
+        if nop is None:
+            step = 1
+            nop = 0
+
+        cpu.registers[2] = cpu.getHead(nop)
+
+        cpu.increment_ip(step)
+        return None
+
+    def if_label(self, cpu):
+        label, extra_steps = self.findLabel(cpu)
+
+        if label is None:
+            cpu.increment_ip()
+            return None
+
+        complement_label = [cpu.nop_complement[i] for i in label]
+
+        label_len = len(complement_label)
+
+        #are we going to find a match?
+        for i in xrange(1, label_len+1):
+            nopNum = cpu.nops.get(cpu.copy_buffer[-i], None)
+            if len(cpu.copy_buffer) > 48:
+                None
+            if complement_label[-i] is not nopNum:
+                #no match, break out
+                cpu.increment_ip(extra_steps+2)
+                return None
+
+        #if we're here, then a match was found
+        #increment IP past the label and execute the function there
+        cpu.increment_ip(extra_steps+1)
+
+        return None
+
+    def set_flow(self, cpu):
+        cpu.flow = cpu.registers[2] % cpu.genome_len
         return None
 
     #for now we will keep the instruction set simply as a list
@@ -366,7 +454,15 @@ class BasicInstructionSet:
         self.inst_set['t'] = self.h_copy
         self.inst_set['u'] = self.h_search
 
+        #@todo:check with big-avida to see how it implements these commands
         self.inst_set['v'] = self.mov_head
+        self.inst_set['w'] = self.jmp_head
+        self.inst_set['x'] = self.get_head
+
+        self.inst_set['y'] = self.if_label
+
+        self.inst_set['z'] = self.set_flow
+
 
         #let's define nops and nop complements for  quick lookup
         self.nops = {self.nop_a: 0, self.nop_b: 1, self.nop_c: 2}
