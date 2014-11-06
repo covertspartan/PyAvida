@@ -18,7 +18,7 @@ def main():
 
     inst_set = BasicInstructionSet()
 
-    cpu = BasicCPU.BasicCPU(ctx, inst_set, build_genome(inst_set, 'ucabcrabcaaa'))
+    cpu = BasicCPU.BasicCPU(ctx, inst_set, build_genome(inst_set, 'ucabvcaaaaaarabcaaa'))
 
     for x in xrange(15):
         print cpu.ip, cpu.flow

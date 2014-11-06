@@ -66,7 +66,8 @@ class BasicInstructionSet:
         return label, len
 
     #search for a given label, normally used with h_search
-    def findLabelEndPos(self, cpu, search_label):
+    def findLabelStartPos(self, cpu, search_label):
+
         match_len = len(search_label)
         start_pos = cpu.ip + match_len
         curr_pos = 0
@@ -87,7 +88,7 @@ class BasicInstructionSet:
                 curr_pos = 0
 
         if curr_pos is match_len:
-            return start_pos+curr_pos
+            return start_pos
 
         return None
 
@@ -298,20 +299,34 @@ class BasicInstructionSet:
     def h_search(self, cpu):
         label, extra_steps = self.findLabel(cpu)
 
+        #this will only happen if complement label is not found
+        if label is None:
+            cpu.registers[1] = 0
+            cpu.registers[2] = 0
+            cpu.increment_ip(extra_steps+1)
+
+
         complement_label = [cpu.nop_complement[i] for i in label]
         #print label
         #print complement_label
 
-        search_pos = self.findLabelEndPos(cpu, complement_label)
+        search_pos = self.findLabelStartPos(cpu, complement_label)
         #print search_pos
 
         if search_pos is not None:
             #print "Found!!!!"
             cpu.flow = search_pos % cpu.genome_len
+            cpu.increment_ip(extra_steps+1)
+            cpu.registers[1] = cpu.flow - cpu.ip
+            cpu.registers[2] = len(label)
+            return None
+        else:
+            cpu.increment_ip(extra_steps+1)
 
-        #this will only happen is complement label is not found
-        cpu.increment_ip(extra_steps+1)
+        return None
 
+    def mov_head(self, cpu):
+        cpu.ip = cpu.flow
         return None
 
     #for now we will keep the instruction set simply as a list
@@ -350,6 +365,8 @@ class BasicInstructionSet:
         self.inst_set['s'] = self.h_divide
         self.inst_set['t'] = self.h_copy
         self.inst_set['u'] = self.h_search
+
+        self.inst_set['v'] = self.mov_head
 
         #let's define nops and nop complements for  quick lookup
         self.nops = {self.nop_a: 0, self.nop_b: 1, self.nop_c: 2}
