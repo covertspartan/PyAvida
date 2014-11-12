@@ -7,23 +7,26 @@ from cCPU import BasicCPU
 #so let it be written, so let it be done
 class BasicInstructionSet:
 
-    def nop_a(self, cpu):
+    @staticmethod
+    def nop_a(cpu):
         cpu.increment_ip()
         return 1
 
-    def nop_b(self, cpu):
+    @staticmethod
+    def nop_b(cpu):
         cpu.increment_ip()
         return 2
 
-    #a comment
-    def nop_c(self, cpu):
+    @staticmethod
+    def nop_c(cpu):
         #print "nop_c"
         cpu.increment_ip()
         return 3
 
     #figure out which operands we must use and return their register values
     #@AWC should these helper function be part of the CPU?
-    def get_two_registers(self, cpu):
+    @staticmethod
+    def get_two_registers(cpu):
         op1 = None
         op2 = None
         step = 0
@@ -40,7 +43,8 @@ class BasicInstructionSet:
         return op1, op2, step
 
     #@TODO: Check and see if there is a reason why big-avida counts labels as an execution
-    def findLabel(self, cpu):
+    @staticmethod
+    def findLabel(cpu):
         label = []
         len = 0
         pos = cpu.ip + 1
@@ -66,7 +70,8 @@ class BasicInstructionSet:
         return label, len
 
     #search for a given label, normally used with h_search
-    def findLabelStartPos(self, cpu, search_label):
+    @staticmethod
+    def findLabelStartPos(cpu, search_label):
 
         match_len = len(search_label)
         start_pos = cpu.ip + match_len
@@ -93,7 +98,8 @@ class BasicInstructionSet:
         return None
 
     #figure out which register to use
-    def which_register(self, cpu):
+    @staticmethod
+    def which_register(cpu):
         nop = cpu.nops.get(cpu.genome[cpu.ip+1], None)
 
         if nop is not None:
@@ -101,10 +107,10 @@ class BasicInstructionSet:
         else:
             return 1, 0
 
-
-    def if_n_equ(self, cpu):
+    @staticmethod
+    def if_n_equ(cpu):
         step = 1
-        op1, op2, extra_step = self.get_two_registers(cpu)
+        op1, op2, extra_step = BasicInstructionSet.get_two_registers(cpu)
 
         if op1 == op2:
             step += extra_step + 1
@@ -115,9 +121,10 @@ class BasicInstructionSet:
         return None
 
 
-    def if_less(self, cpu):
+    @staticmethod
+    def if_less(cpu):
         step = 1
-        op1, op2, extra_step = self.get_two_registers(cpu)
+        op1, op2, extra_step = BasicInstructionSet.get_two_registers(cpu)
 
         if op1 < op2:
             step += extra_step
@@ -127,8 +134,9 @@ class BasicInstructionSet:
         cpu.increment_ip(step)
         return None
 
-    def pop(self, cpu):
-        register, extra_step = self.which_register(cpu)
+    @staticmethod
+    def pop(cpu):
+        register, extra_step = BasicInstructionSet.which_register(cpu)
 
         cpu.registers[register] = cpu.stacks[cpu.curr_stack][-1]
 
@@ -140,8 +148,9 @@ class BasicInstructionSet:
         cpu.increment_ip(1+extra_step)
         return None
 
-    def push(self, cpu):
-        register, extra_step = self.which_register(cpu)
+    @staticmethod
+    def push(cpu):
+        register, extra_step = BasicInstructionSet.which_register(cpu)
 
         cpu.stacks[cpu.curr_stack].append(cpu.registers[register])
 
@@ -151,7 +160,8 @@ class BasicInstructionSet:
         cpu.increment_ip(1+extra_step)
         return None
 
-    def swap_stk(self, cpu):
+    @staticmethod
+    def swap_stk(cpu):
 
         cpu.curr_stack = int(~cpu.curr_stack)
 
@@ -159,8 +169,9 @@ class BasicInstructionSet:
 
         return None
 
-    def swap(self, cpu):
-        reg1, extra_step = self.which_register(cpu)
+    @staticmethod
+    def swap(cpu):
+        reg1, extra_step = BasicInstructionSet.which_register(cpu)
         reg2 = cpu.nop_complement[reg1]
 
         val1 = cpu.registers[reg1]
@@ -175,8 +186,9 @@ class BasicInstructionSet:
 
         return None
 
-    def shift_r(self, cpu):
-        reg1, extra_step = self.which_register(cpu)
+    @staticmethod
+    def shift_r(cpu):
+        reg1, extra_step = BasicInstructionSet.which_register(cpu)
 
         cpu.registers[reg1] >>= 1
 
@@ -186,8 +198,9 @@ class BasicInstructionSet:
 
         return None
 
-    def shift_l(self, cpu):
-        reg1, extra_step = self.which_register(cpu)
+    @staticmethod
+    def shift_l(cpu):
+        reg1, extra_step = BasicInstructionSet.which_register(cpu)
 
         cpu.registers[reg1] <<= 1
         cpu.registers[reg1] &= 0xffffffff
@@ -198,8 +211,9 @@ class BasicInstructionSet:
 
         return None
 
-    def inc(self, cpu):
-        reg1, extra_step = self.which_register(cpu)
+    @staticmethod
+    def inc(cpu):
+        reg1, extra_step = BasicInstructionSet.which_register(cpu)
 
         cpu.registers[reg1] += 1
         cpu.registers[reg1] &= 0xffffffff
@@ -210,8 +224,9 @@ class BasicInstructionSet:
 
         return None
 
-    def dec(self, cpu):
-        reg1, extra_step = self.which_register(cpu)
+    @staticmethod
+    def dec(cpu):
+        reg1, extra_step = BasicInstructionSet.which_register(cpu)
 
         cpu.registers[reg1] -= 1
 
@@ -221,8 +236,9 @@ class BasicInstructionSet:
 
         return None
 
-    def add(self, cpu):
-        reg1, extra_step = self.which_register(cpu)
+    @staticmethod
+    def add(cpu):
+        reg1, extra_step = BasicInstructionSet.which_register(cpu)
 
         cpu.registers[reg1] = cpu.registers[1] + cpu.registers[2]
         cpu.registers[reg1] &= 0xffffffff
@@ -233,8 +249,9 @@ class BasicInstructionSet:
 
         return None
 
-    def sub(self, cpu):
-        reg1, extra_step = self.which_register(cpu)
+    @staticmethod
+    def sub(cpu):
+        reg1, extra_step = BasicInstructionSet.which_register(cpu)
 
         cpu.registers[reg1] = cpu.registers[2] - cpu.registers[1]
         cpu.registers[reg1] &= 0xffffffff
@@ -245,8 +262,9 @@ class BasicInstructionSet:
 
         return None
 
-    def nand(self, cpu):
-        reg1, extra_step = self.which_register(cpu)
+    @staticmethod
+    def nand(cpu):
+        reg1, extra_step = BasicInstructionSet.which_register(cpu)
         #print bin(cpu.registers[1])
         #print bin(cpu.registers[2])
         cpu.registers[reg1] = ~(cpu.registers[1] & cpu.registers[2]) & 0xffffffff
@@ -257,8 +275,9 @@ class BasicInstructionSet:
 
         return None
 
-    def io(self, cpu):
-        reg1, extra_step = self.which_register(cpu)
+    @staticmethod
+    def io(cpu):
+        reg1, extra_step = BasicInstructionSet.which_register(cpu)
 
         cpu.outputs.append(cpu.registers[reg1])
         cpu.registers[reg1] = cpu.next_input()
@@ -267,14 +286,15 @@ class BasicInstructionSet:
         return None
 
     #allocate genome space -- need a max length so that we don't run off the rails
-    def h_alloc(self, cpu):
+    @staticmethod
+    def h_alloc(cpu):
         #print cpu.genome
         new_len = cpu.genome_len * 2
         if new_len > cpu.genome_max_len:
             new_len = cpu.genome_max_len
 
         for i in xrange(cpu.genome_len, new_len):
-            cpu.genome.append(self.nop_c)
+            cpu.genome.append(BasicInstructionSet.nop_c)
 
         cpu.registers[0] = new_len
         cpu.genome_len = new_len
@@ -287,22 +307,29 @@ class BasicInstructionSet:
         return None
 
     #big finish
-    def h_divide(self, cpu):
+    @staticmethod
+    def h_divide(cpu):
 
         #this only works if the write head is in the correct place
         if cpu.write is not cpu.read:
             offspring = cpu.genome[cpu.read:cpu.write]
             cpu.genome = cpu.genome[0:cpu.read]
             cpu.genome_len = len(cpu.genome)
+
+            for func in cpu.divide_hooks:
+                func(cpu, offspring)
+
             cpu.reset()
 
-            print "offspring ({:d}): {:s}".format(len(offspring), offspring)
-            print "genome ({:d}): {:s}".format(len(cpu.genome), cpu.genome)
-            quit()
+
+            #print "offspring ({:d}): {:s}".format(len(offspring), offspring)
+            #print "genome ({:d}): {:s}".format(len(cpu.genome), cpu.genome)
+            #quit()
 
         return None
 
-    def h_copy(self, cpu):
+    @staticmethod
+    def h_copy(cpu):
         cpu.genome[cpu.write] = cpu.genome[cpu.read]
         cpu.copy_buffer.append(cpu.genome[cpu.read])
 
@@ -312,8 +339,9 @@ class BasicInstructionSet:
 
         return None
 
-    def h_search(self, cpu):
-        label, extra_steps = self.findLabel(cpu)
+    @staticmethod
+    def h_search(cpu):
+        label, extra_steps = BasicInstructionSet.findLabel(cpu)
 
         #this will only happen if complement label is not found
         if label is None:
@@ -329,7 +357,7 @@ class BasicInstructionSet:
         #print label
         #print complement_label
 
-        search_pos = self.findLabelStartPos(cpu, complement_label)
+        search_pos = BasicInstructionSet.findLabelStartPos(cpu, complement_label)
         #print search_pos
 
         if search_pos is not None:
@@ -344,7 +372,8 @@ class BasicInstructionSet:
 
         return None
 
-    def mov_head(self, cpu):
+    @staticmethod
+    def mov_head(cpu):
         nop = cpu.nops.get(cpu.genome[cpu.ip+1], None)
         step = 2
 
@@ -359,7 +388,8 @@ class BasicInstructionSet:
 
         return None
 
-    def jmp_head(self, cpu):
+    @staticmethod
+    def jmp_head(cpu):
         nop = cpu.nops.get(cpu.genome[cpu.ip+1], None)
         step = 2
 
@@ -373,7 +403,8 @@ class BasicInstructionSet:
             cpu.increment_ip(step)
         return None
 
-    def get_head(self, cpu):
+    @staticmethod
+    def get_head(cpu):
         nop = cpu.nops.get(cpu.genome[cpu.ip+1], None)
         step = 2
 
@@ -386,9 +417,10 @@ class BasicInstructionSet:
         cpu.increment_ip(step)
         return None
 
-    def if_label(self, cpu):
-        label, extra_steps = self.findLabel(cpu)
-
+    @staticmethod
+    def if_label(cpu):
+        label, extra_steps = BasicInstructionSet.findLabel(cpu)
+        #print "here"
         if label is None:
             cpu.increment_ip()
             return None
@@ -413,7 +445,8 @@ class BasicInstructionSet:
 
         return None
 
-    def set_flow(self, cpu):
+    @staticmethod
+    def set_flow(cpu):
         cpu.flow = cpu.registers[2] % cpu.genome_len
         return None
 
@@ -422,51 +455,50 @@ class BasicInstructionSet:
     #it will also return a list of nops and nop complements for pattern matching
     #if you wish you use a different instruction set, simply override this function
     def __init__(self):
+        print "Help! Help! I'm being oppressed!"
         self.inst_set = dict()
 
-        self.inst_set['a'] = self.nop_a
-        self.inst_set['b'] = self.nop_b
-        self.inst_set['c'] = self.nop_c
+        self.inst_set['a'] = BasicInstructionSet.nop_a
+        self.inst_set['b'] = BasicInstructionSet.nop_b
+        self.inst_set['c'] = BasicInstructionSet.nop_c
 
-        self.inst_set['d'] = self.if_n_equ
-        self.inst_set['e'] = self.if_less
+        self.inst_set['d'] = BasicInstructionSet.if_n_equ
+        self.inst_set['e'] = BasicInstructionSet.if_less
 
-        self.inst_set['f'] = self.pop
-        self.inst_set['g'] = self.push
-        self.inst_set['h'] = self.swap_stk
-        self.inst_set['i'] = self.swap
+        self.inst_set['f'] = BasicInstructionSet.pop
+        self.inst_set['g'] = BasicInstructionSet.push
+        self.inst_set['h'] = BasicInstructionSet.swap_stk
+        self.inst_set['i'] = BasicInstructionSet.swap
 
-        self.inst_set['j'] = self.shift_r
-        self.inst_set['k'] = self.shift_l
+        self.inst_set['j'] = BasicInstructionSet.shift_r
+        self.inst_set['k'] = BasicInstructionSet.shift_l
 
-        self.inst_set['l'] = self.dec
-        self.inst_set['m'] = self.inc
+        self.inst_set['l'] = BasicInstructionSet.dec
+        self.inst_set['m'] = BasicInstructionSet.inc
 
-        self.inst_set['n'] = self.add
-        self.inst_set['o'] = self.sub
+        self.inst_set['n'] = BasicInstructionSet.add
+        self.inst_set['o'] = BasicInstructionSet.sub
 
-        self.inst_set['p'] = self.nand
+        self.inst_set['p'] = BasicInstructionSet.nand
 
-        self.inst_set['q'] = self.io
+        self.inst_set['q'] = BasicInstructionSet.io
 
-        self.inst_set['r'] = self.h_alloc
-        self.inst_set['s'] = self.h_divide
-        self.inst_set['t'] = self.h_copy
-        self.inst_set['u'] = self.h_search
+        self.inst_set['r'] = BasicInstructionSet.h_alloc
+        self.inst_set['s'] = BasicInstructionSet.h_divide
+        self.inst_set['t'] = BasicInstructionSet.h_copy
+        self.inst_set['u'] = BasicInstructionSet.h_search
 
         #@todo:check with big-avida to see how it implements these commands
-        self.inst_set['v'] = self.mov_head
-        self.inst_set['w'] = self.jmp_head
-        self.inst_set['x'] = self.get_head
+        self.inst_set['v'] = BasicInstructionSet.mov_head
+        self.inst_set['w'] = BasicInstructionSet.jmp_head
+        self.inst_set['x'] = BasicInstructionSet.get_head
 
-        self.inst_set['y'] = self.if_label
+        self.inst_set['y'] = BasicInstructionSet.if_label
 
-        self.inst_set['z'] = self.set_flow
+        self.inst_set['z'] = BasicInstructionSet.set_flow
 
 
         #let's define nops and nop complements for  quick lookup
-        self.nops = {self.nop_a: 0, self.nop_b: 1, self.nop_c: 2}
+        self.nops = {BasicInstructionSet.nop_a: 0, BasicInstructionSet.nop_b: 1, BasicInstructionSet.nop_c: 2}
 
         self.nop_complement = (1, 2, 0)
-
-
