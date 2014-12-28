@@ -5,6 +5,7 @@ from cCPU import BasicCPU
 #every instruction in the assembly language gets a reference to the cpu it runs on
 #every instruction is responsible for advancing the CPUs flow control head
 #so let it be written, so let it be done
+#@TODO fix all flow control instructions so that they move the correct heads and draw from the correct registers. Currently only the funcitons in the default copy loop behave correctly
 class BasicInstructionSet:
 
     @staticmethod
@@ -280,7 +281,13 @@ class BasicInstructionSet:
         reg1, extra_step = BasicInstructionSet.which_register(cpu)
 
         cpu.outputs.append(cpu.registers[reg1])
+
+        #conceptually, the output hooks should be handled before the input state is changed
+        for func in cpu.output_hooks:
+            func(cpu)
+
         cpu.registers[reg1] = cpu.next_input()
+
 
         cpu.increment_ip(1+extra_step)
         return None
@@ -502,3 +509,8 @@ class BasicInstructionSet:
         self.nops = {BasicInstructionSet.nop_a: 0, BasicInstructionSet.nop_b: 1, BasicInstructionSet.nop_c: 2}
 
         self.nop_complement = (1, 2, 0)
+
+        #reverse the instruction set for fast decoding.
+        self.decode_inst_set = {}
+        for inst in self.inst_set.viewkeys():
+            self.decode_inst_set[self.inst_set[inst]] = inst
