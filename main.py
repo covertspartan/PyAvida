@@ -31,8 +31,9 @@ def main():
 
     inst_set = BasicInstructionSet()
 
-    #cpu = BasicCPU.CPU(ctx, inst_set, build_genome(inst_set, 'rucavcccccccccccccccqgfcpqbccccccccccccccutycasvab'))
-    cpu = BasicCPU.CPU(ctx, inst_set, build_genome(inst_set, 'rucavcozjccscicccccccccccamxelqcnqhccpcqcutycastvab'))
+    cpu = BasicCPU.CPU(ctx, inst_set, build_genome(inst_set, 'rucavcccccccccccccccqqcpqbccccccccccccccutycasvab'))
+    #cpu = BasicCPU.CPU(ctx, inst_set, build_genome(inst_set, 'rucavcccccccccccccccccccccccccpccchccccccutycasvab'))
+    #cpu = BasicCPU.CPU(ctx, inst_set, build_genome(inst_set, 'rucavcozjccscicccccccccccamxelqcnqhccpcqcutycastvab'))
 
     environment = BasicLogic9Enironment.BasicLogic9Environment()
 

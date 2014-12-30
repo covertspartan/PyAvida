@@ -32,6 +32,6 @@ class BasicPopulation:
         cpu.num_divides += 1
 
         self.ctx.random.choice(self.pop_list).inject_genome(offspring, cpu.num_divides)
-        print "Divide!"
+        #print "Divide!"
 
         return None

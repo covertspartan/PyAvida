@@ -95,11 +95,11 @@ class CPU:
         self.ip = (self.ip + steps) % self.genome_len
 
     def changeHead(self, head, value):
-        if head is 0:
+        if head is 0:       #nop-a
             self.ip = value
-        elif head is 1:
+        elif head is 1:     #nop-b
             self.read = value
-        elif head is 2:
+        elif head is 2:     #nop-c
             self.write = value
 
     def getHead(self, head):

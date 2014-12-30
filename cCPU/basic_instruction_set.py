@@ -5,7 +5,6 @@ from cCPU import BasicCPU
 #every instruction in the assembly language gets a reference to the cpu it runs on
 #every instruction is responsible for advancing the CPUs flow control head
 #so let it be written, so let it be done
-#@TODO fix all flow control instructions so that they move the correct heads and draw from the correct registers. Currently only the funcitons in the default copy loop behave correctly
 class BasicInstructionSet:
 
     @staticmethod
@@ -230,8 +229,9 @@ class BasicInstructionSet:
         reg1, extra_step = BasicInstructionSet.which_register(cpu)
 
         cpu.registers[reg1] -= 1
+        cpu.registers[reg1] &= 0xffffffff
 
-        #print bin(cpu.registers[1])
+#        #print bin(cpu.registers[1])
 
         cpu.increment_ip(1+extra_step)
 
@@ -316,7 +316,7 @@ class BasicInstructionSet:
     #big finish
     @staticmethod
     def h_divide(cpu):
-
+        #@TODO Some evloved orgs from big-avida rely on restrictions here to self-replicate at the usual time, consider adding such restrictions back in
         #this only works if the write head is in the correct place
         if cpu.write is not cpu.read:
             offspring = cpu.genome[cpu.read:cpu.write]
@@ -390,6 +390,7 @@ class BasicInstructionSet:
 
         cpu.changeHead(nop,cpu.flow)
 
+        #ONLY increment the IP IF we haven't already moved it.
         if nop is not 0:
             cpu.increment_ip(step)
 
@@ -406,6 +407,7 @@ class BasicInstructionSet:
 
         cpu.changeHead(nop, cpu.getHead(2) + cpu.registers[2] % cpu.genome_len)
 
+        #do not increment the IP if we just moved it
         if nop is not 0:
             cpu.increment_ip(step)
         return None
@@ -454,7 +456,18 @@ class BasicInstructionSet:
 
     @staticmethod
     def set_flow(cpu):
-        cpu.flow = cpu.registers[2] % cpu.genome_len
+        nop = cpu.nops.get(cpu.genome[cpu.ip+1], None)
+        step = 2
+
+        #default to the CX register
+        if nop is None:
+            nop = 2
+            step = 1
+
+        #pressumbably, we mod the
+        cpu.flow = cpu.registers[nop] % cpu.genome_len
+
+        cpu.increment_ip(step)
         return None
 
     #for now we will keep the instruction set simply as a list
