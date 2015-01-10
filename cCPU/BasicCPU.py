@@ -48,12 +48,12 @@ class CPU:
         self.input_ptr = 0
         self.input_len = len(self.inputs)
         self.input_state = 0
-        self.input_states = ((),         #0
-                             (0,),       #1
-                             (1, 0),     #2
-                             (2, 1, 0),  #3
-                             (0, 2, 1),  #4
-                             (1, 0, 2))  #5
+        self.input_states = ((None, None, None), #0
+                             (0, None, None),    #1
+                             (1, 0, None),       #2
+                             (2, 1, 0),          #3
+                             (0, 2, 1),          #4
+                             (1, 0, 2))          #5
         self.outputs = []
         self.copy_buffer = []
 

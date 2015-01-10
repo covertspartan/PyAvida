@@ -1,53 +1,47 @@
 class BasicLogic9Environment:
 
-    #each function in the environment must have two function
-    #one) to define it's result (as a binary number here)
-    #two) a callback to define how it effects the organism who executed it
-    #in this environment, only execution pre genome is rewarded
-
-    #@TODO finish implementing logic nine environment
-    #one input functions
-    @staticmethod
-    def f_not(A):
-        return ~A & 0xffffffff
+    # each function is defined by a tuple of three things
+    # one) a lambda function to define it's result (as a binary number here)
+    # 2a) a single bit unique ID (for record keeping) to pass to the callback function
+    # 2b) a bonus to pass to the call back function
+    # in this environment, only execution pre genome is rewarded
 
     @staticmethod
-    def f_not_callback(cpu):
-        cpu.func_triggers |= 0x1
-        return None
-
-    #two input tasks
-    @staticmethod
-    def f_nand(A, B):
-        return ~(A & B) & 0xffffffff
-
-    @staticmethod
-    def f_nand_callback(cpu):
-        cpu.func_triggers |= 0x2
+    def f_env_callback(bonus, id, cpu):
+        cpu.func_triggers |= id
         return None
 
     def __init__(self):
-        self.one_input_functions = []
-        self.two_input_functions = []
+        self.one_input_functions = [
+            (lambda A: ~A & 0xffffffff,                       (0x1, 2))     # Not
+        ]
+        self.two_input_functions = [
+            (lambda A, B: ~(A & B) & 0xffffffff,              (0x2, 2)),    # Nand
+            (lambda A, B: (A & B) & 0xffffffff,               (0x4, 4)),    # And
+            (lambda A, B: (~A | B) & 0xffffffff,              (0x8, 4)),    # OrNot 1
+            (lambda A, B: (A | ~B) & 0xffffffff,              (0x8, 4)),    # OrNot 2
+            (lambda A, B: (A | B) & 0xffffffff,               (0x10, 8)),   # Or
+            (lambda A, B: (~A & B) & 0xfffffff,               (0x20, 8)),   # AndNot 1
+            (lambda A, B: (A & ~B) & 0xfffffff,               (0x20, 8)),   # AndNot 2
+            (lambda A, B: (~A & ~B) & 0xffffffff,             (0x40, 16)),  # Nor
+            (lambda A, B: ((A & ~B) | (~A & B)) & 0xffffffff, (0x80, 16)),  # Xor
+            (lambda A, B: ((A & B) | (~A & ~B)) & 0xffffffff, (0x100, 32))  # Equ
+        ]
         self.three_input_functons = []
-
-        self.one_input_functions.append((self.f_not, self.f_not_callback))
-
-        self.two_input_functions.append((self.f_nand, self.f_nand_callback))
 
         self.population_array = []
 
-    #this defines the set of output that are valid for any given input state
-    #functionally it becomes a giant hash function implemented with lists and dicts
+    # this defines the set of outputs that are valid for any given input state
+    # functionally it becomes a giant hash function implemented with lists and dicts
     def attach_population(self, population):
         for cpu in population.pop_list:
             input_array = [{} for state in cpu.input_states]
-            #state 1
+            # state 1
             for x, state in enumerate(input_array):
                 input_state = cpu.input_states[x]
-                A = cpu.inputs[input_state[0]] if len(input_state) > 0 else None
-                B = cpu.inputs[input_state[1]] if len(input_state) > 1 else None
-                C = cpu.inputs[input_state[2]] if len(input_state) > 2 else None
+                A = cpu.inputs[input_state[0]] if input_state[0] is not None else None
+                B = cpu.inputs[input_state[1]] if input_state[1] is not None else None
+                C = cpu.inputs[input_state[2]] if input_state[2] is not None else None
                 if A:
                     self.attach_one_input_functions(state,A)
                 if A and B:
@@ -55,19 +49,25 @@ class BasicLogic9Environment:
 
             cpu.output_dict = input_array
 
+            print cpu.output_dict[2]
+
+    # helper function that adds all one input functions to the environment
     def attach_one_input_functions(self, output_dict, A):
         for func, bonus in self.one_input_functions:
             output_dict[func(A)] = bonus
 
+    # helper function that adds all two input functions to the environment
     def attach_two_input_functions(self, output_dict, A, B):
         for func, bonus in self.two_input_functions:
-            output_dict[func(A,B)] = bonus
+            if output_dict.get(func(A, B), None):
+                print "Collision -- not sure what to do here."
+            output_dict[func(A, B)] = bonus
 
     def output_hook(self, cpu):
 
-        callback = cpu.output_dict[cpu.input_state].get(cpu.outputs[-1], None)
+        ID, bonus = cpu.output_dict[cpu.input_state].get(cpu.outputs[-1], (None, None))
 
-        if callback is not None:
-            callback(cpu)
+        if bonus is not None:
+            BasicLogic9Environment.f_env_callback(bonus, ID, cpu)
 
         return None

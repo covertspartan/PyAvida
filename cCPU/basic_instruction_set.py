@@ -508,7 +508,7 @@ class BasicInstructionSet:
         self.inst_set['t'] = BasicInstructionSet.h_copy
         self.inst_set['u'] = BasicInstructionSet.h_search
 
-        #@todo:check with big-avida to see how it implements these commands
+        #@todo:check with big-avida to see how it implements these commands -- I think they're working properly now, but want to double check
         self.inst_set['v'] = BasicInstructionSet.mov_head
         self.inst_set['w'] = BasicInstructionSet.jmp_head
         self.inst_set['x'] = BasicInstructionSet.get_head

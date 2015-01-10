@@ -3,6 +3,7 @@ from cContext import ccontext
 from cCPU.basic_instruction_set import BasicInstructionSet
 from cPopulation import BasicPopulation
 from cEnvironment import BasicLogic9Enironment
+from cTestingTools import fGetBasicTestOrgs
 
 import cProfile
 
@@ -27,11 +28,13 @@ def run_update(cpu_cycles, population):
     return None
 
 def main():
-    ctx = ccontext.cContext(1)
+    ctx = ccontext.cContext(81083)
 
     inst_set = BasicInstructionSet()
 
-    cpu = BasicCPU.CPU(ctx, inst_set, build_genome(inst_set, 'rucavcccccccccccccccqqcpqbccccccccccccccutycasvab'))
+    cpu = BasicCPU.CPU(ctx, inst_set, build_genome(inst_set, fGetBasicTestOrgs.getNandOrGenome()))
+
+    #test cases from lensiki et al 2003 test case lineage
     #cpu = BasicCPU.CPU(ctx, inst_set, build_genome(inst_set, 'rucavcccccccccccccccccccccccccpccchccccccutycasvab'))
     #cpu = BasicCPU.CPU(ctx, inst_set, build_genome(inst_set, 'rucavcozjccscicccccccccccamxelqcnqhccpcqcutycastvab'))
 
@@ -43,7 +46,7 @@ def main():
 
     for updates in range(0,1000):
         run_update(300000, population)
-        print "Update {:d}, orgs born: {:d}".format(updates,population.divide_count)
+        print "Update {:d}, orgs born: {:d}".format(updates, population.divide_count)
 
     #a little code to verify self-replication
     random_cpu = ctx.random.choice(population.pop_list)
