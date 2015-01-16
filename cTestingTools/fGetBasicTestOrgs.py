@@ -3,6 +3,8 @@ __author__ = 'covertar'
 # these are based on the sample progrmas from Lenski et al 2003 supplementary materials
 # http://myxo.css.msu.edu/papers/nature2003/logic_programs.html
 
+def getDefaultGenome():
+    return 'rucavccccccccccccccccccccccccccccccccccccutycasvab'
 
 def getNandGenome():
     return 'rucavcccccccccccccccqqcpqbccccccccccccccutycasvab'

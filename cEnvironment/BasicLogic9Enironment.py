@@ -9,6 +9,7 @@ class BasicLogic9Environment:
     @staticmethod
     def f_env_callback(bonus, id, cpu):
         cpu.func_triggers |= id
+        cpu.env_bonus *= bonus
         return None
 
     def __init__(self):
@@ -43,13 +44,13 @@ class BasicLogic9Environment:
                 B = cpu.inputs[input_state[1]] if input_state[1] is not None else None
                 C = cpu.inputs[input_state[2]] if input_state[2] is not None else None
                 if A:
-                    self.attach_one_input_functions(state,A)
+                    self.attach_one_input_functions(state, A)
                 if A and B:
-                    self.attach_two_input_functions(state,A,B)
+                    self.attach_two_input_functions(state, A, B)
 
             cpu.output_dict = input_array
 
-            print cpu.output_dict[2]
+            #print cpu.output_dict[2]
 
     # helper function that adds all one input functions to the environment
     def attach_one_input_functions(self, output_dict, A):
@@ -63,7 +64,8 @@ class BasicLogic9Environment:
                 print "Collision -- not sure what to do here."
             output_dict[func(A, B)] = bonus
 
-    def output_hook(self, cpu):
+    @staticmethod
+    def output_hook(cpu):
 
         ID, bonus = cpu.output_dict[cpu.input_state].get(cpu.outputs[-1], (None, None))
 
@@ -71,3 +73,14 @@ class BasicLogic9Environment:
             BasicLogic9Environment.f_env_callback(bonus, ID, cpu)
 
         return None
+
+    @staticmethod
+    def calculate_fitness(cpu, offspring):
+
+        # merit is proportional to executed length or the copy size, whichever is smaller
+        # make sure it's a float
+        merit = float(min(cpu.executed_length, len(offspring)) * cpu.env_bonus)
+
+        # fitness is merit divided by gestation time
+        fitness = merit / cpu.gestation_time
+        return fitness, merit

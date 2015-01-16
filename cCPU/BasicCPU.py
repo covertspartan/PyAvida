@@ -9,7 +9,7 @@ from copy import deepcopy
 #in actuality this is more like a "cpu interface"
 #@TODO implement merit and counts of the number of executed tasks
 class CPU:
-    def __init__(self, ctx, inst_set, genome=None, orig=None):
+    def __init__(self, ctx, inst_set, genome=None, orig=None, id = None):
 
         #handel copy constructor operation
         if orig is not None:
@@ -17,12 +17,14 @@ class CPU:
             self.inst_set = orig.inst_set
             self.genome = deepcopy(orig.genome)
             self.genome_len = len(self.genome)
+            self.execution_trace = deepcopy(orig.execution_trace)
             self.num_divides = orig.num_divides
         else:
             self.ctx = ctx
             self.inst_set = inst_set
             self.genome = genome
             self.genome_len = len(genome)
+            self.execution_trace = [0] * self.genome_len
             self.num_divides = 0
 
         self.registers = [0, 0, 0]
@@ -31,6 +33,8 @@ class CPU:
         self.nop_complement = inst_set.nop_complement
 
         self.genome_max_len = 1024
+
+        self.gestation_time = 0
 
         self.read = 0
         self.write = 0
@@ -42,6 +46,7 @@ class CPU:
         self.stackA = []
         self.stackB = []
 
+        # @todo: make I/O environment specific -- push the initialization of these to the env class (if any)
         self.inputs = (int(self.ctx.random.getrandbits(32)),
                        int(self.ctx.random.getrandbits(32)),
                        int(self.ctx.random.getrandbits(32)))
@@ -61,26 +66,36 @@ class CPU:
                        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]]
         self.curr_stack = 0
 
-        #This is used by the environment. if it exists
+        # This is used by the environment. if it exists
         self.output_dict = None
 
         self.divide_hooks = []
 
         self.output_hooks = []
 
-        #binary number representing which functions have been triggered
-        self.func_triggers = 0
+        # binary number representing which functions have been triggered
+        self.func_triggers = 0x0
 
+        self.env_bonus = 1
+        self.merit = 1
+        self.fitness = self.merit / self.genome_len
+
+        self.executed_length = 0
+
+        self.id = id
 
     def copy(self):
         return CPU(self.ctx, self.inst_set, orig=self)
 
 
-    def inject_genome(self, genome, num_divides):
+    def inject_genome(self, genome, num_divides, fitness, merit):
         self.genome = genome
         self.genome_len = len(genome)
         self.num_divides = num_divides
+        self.fitness = fitness
+        self.merit = merit
         self.reset()
+
 
     def next_input(self):
         curr = self.input_ptr
@@ -110,12 +125,18 @@ class CPU:
         elif head is 2:
             return self.write
 
-    #resets the CPUs state, but it does NOT change the instruction set.
-    def reset(self):
+    # resets the CPUs state, but it does NOT change the instruction set.
+    # a full reset also purges fitness, num_divides and merit data.
+    def reset(self, full_reset = False):
         self.read = 0
         self.write = 0
         self.flow = 0
         self.ip = 0
+
+        if full_reset:
+            self.merit = 1
+            self.fitness = self.merit / self.genome_len
+            self.num_divides = 0
 
         # self.inputs = (int(self.ctx.random.getrandbits(32)),
         #                int(self.ctx.random.getrandbits(32)),
@@ -136,13 +157,27 @@ class CPU:
 
         self.registers = [0, 0, 0]
 
-        self.num_divides = 0
-
         self.func_triggers = 0
 
+        self.gestation_time = 0
+
+        self.env_bonus = 1
+
+        self.executed_length = 0
+        del self.execution_trace
+        self.execution_trace = [0] * self.genome_len
+
+    # execute the next thing that the IP head is on
     def step(self):
-        #print getsizeof(self.genome[self.ip]), self.genome[self.ip]
+        # book keeping
+        self.gestation_time += 1
+        if self.execution_trace[self.ip] is 0:
+            self.executed_length += 1
+        self.execution_trace[self.ip] += 1
+
+        # execute the next instruction
         self.genome[self.ip](self)
+
 
     def register_divide_hook(self, func):
         self.divide_hooks.append(func)

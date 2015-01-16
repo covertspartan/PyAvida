@@ -300,14 +300,14 @@ class BasicInstructionSet:
         if new_len > cpu.genome_max_len:
             new_len = cpu.genome_max_len
 
-        for i in xrange(cpu.genome_len, new_len):
-            cpu.genome.append(BasicInstructionSet.nop_c)
+        cpu.genome += [BasicInstructionSet.nop_c] * cpu.genome_len
+        #for i in xrange(cpu.genome_len, new_len):
+        #    cpu.genome.append(BasicInstructionSet.nop_c)
 
+        cpu.execution_trace += [0] * cpu.genome_len
         cpu.registers[0] = new_len
         cpu.genome_len = new_len
-        #print cpu.genome
-        #print cpu.registers
-        #print cpu.genome_len, len(cpu.genome)
+
 
         cpu.increment_ip()
 
@@ -327,7 +327,6 @@ class BasicInstructionSet:
                 func(cpu, offspring)
 
             cpu.reset()
-
 
             #print "offspring ({:d}): {:s}".format(len(offspring), offspring)
             #print "genome ({:d}): {:s}".format(len(cpu.genome), cpu.genome)

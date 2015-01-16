@@ -25,6 +25,8 @@ def run_update(cpu_cycles, population):
     #print id(population)
     for tick in xrange(0,cpu_cycles):
         population.step()
+
+    population.end_update()
     return None
 
 def main():
@@ -32,7 +34,7 @@ def main():
 
     inst_set = BasicInstructionSet()
 
-    cpu = BasicCPU.CPU(ctx, inst_set, build_genome(inst_set, fGetBasicTestOrgs.getNandOrGenome()))
+    cpu = BasicCPU.CPU(ctx, inst_set, build_genome(inst_set, fGetBasicTestOrgs.getDefaultGenome()))
 
     #test cases from lensiki et al 2003 test case lineage
     #cpu = BasicCPU.CPU(ctx, inst_set, build_genome(inst_set, 'rucavcccccccccccccccccccccccccpccchccccccutycasvab'))
@@ -40,15 +42,15 @@ def main():
 
     environment = BasicLogic9Enironment.BasicLogic9Environment()
 
-    population = BasicPopulation.BasicPopulation(ctx, cpu, 1, 1, environment)
+    population = BasicPopulation.BasicPopulation(ctx, cpu, 100, 100, environment)
 
     environment.attach_population(population)
 
-    for updates in range(0,1000):
+    for updates in range(0, 1000):
         run_update(300000, population)
-        print "Update {:d}, orgs born: {:d}".format(updates, population.divide_count)
+        print "Update {:d}, orgs born: {:d}, average fitness: {:f}, average generation: {:f}".format(updates, population.divide_count, population.average_fitness, population.average_generation)
 
-    #a little code to verify self-replication
+    # a little code to verify self-replication
     random_cpu = ctx.random.choice(population.pop_list)
 
     def decode_genome(x): return inst_set.decode_inst_set[x]
