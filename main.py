@@ -20,9 +20,8 @@ def revert_genome(inst_set, genome):
     
     return genome_string
 
-#wrapped in a fuction so that we can profile each update
+# wrapped in a fuction so that we can profile each update
 def run_update(cpu_cycles, population):
-    #print id(population)
     for tick in xrange(0,cpu_cycles):
         population.step()
 
@@ -46,7 +45,7 @@ def main():
 
     environment.attach_population(population)
 
-    for updates in range(0, 1000):
+    for updates in range(0, 100):
         run_update(300000, population)
         print "Update {:d}, orgs born: {:d}, average fitness: {:f}, average generation: {:f}".format(updates, population.divide_count, population.average_fitness, population.average_generation)
 

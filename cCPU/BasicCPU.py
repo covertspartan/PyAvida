@@ -3,11 +3,10 @@ from cContext import ccontext
 # from sys import getsizeof
 from copy import deepcopy
 
-#the instruction set has been de-coupled from the cpu for two reasons
-#1 so that we don't have to instantiate all of those functions ad infinitum and have load them in and out of memory
-#2 to create a slightly more flexible way of changing the cpu
-#in actuality this is more like a "cpu interface"
-#@TODO implement merit and counts of the number of executed tasks
+# the instruction set has been de-coupled from the cpu for two reasons
+# 1 so that we don't have to instantiate all of those functions ad infinitum and have load them in and out of memory
+# 2 to create a slightly more flexible way of changing the cpu
+# in actuality this is more like a "cpu interface"
 class CPU:
     def __init__(self, ctx, inst_set, genome=None, orig=None, id = None):
 
@@ -66,7 +65,7 @@ class CPU:
                        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]]
         self.curr_stack = 0
 
-        # This is used by the environment. if it exists
+        # This is used by the environment, if it exists
         self.output_dict = None
 
         self.divide_hooks = []
@@ -87,8 +86,10 @@ class CPU:
     def copy(self):
         return CPU(self.ctx, self.inst_set, orig=self)
 
-
     def inject_genome(self, genome, num_divides, fitness, merit):
+
+        old_merit = self.merit
+
         self.genome = genome
         self.genome_len = len(genome)
         self.num_divides = num_divides
@@ -96,6 +97,10 @@ class CPU:
         self.merit = merit
         self.reset()
 
+        if old_merit is not merit:
+            return True
+
+        return False
 
     def next_input(self):
         curr = self.input_ptr
