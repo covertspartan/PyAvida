@@ -71,7 +71,7 @@ class BasicPopulation:
 
     def step(self):
         self.pop_list[BasicPopulation.find_le(self.cumulative_sum, self.ctx.random.random())].step()
-        #self.ctx.random.choice(self.pop_list).step()
+        # self.ctx.random.choice(self.pop_list).step()
 
     # divide hook to randomly place an offspring
     def divide_hook(self, cpu, offspring):
