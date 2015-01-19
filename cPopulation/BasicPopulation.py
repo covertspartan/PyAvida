@@ -1,3 +1,4 @@
+from BasicProbScheduler import BasicProbScheduler
 from bisect import bisect_left
 
 # REALLY basic population class
@@ -34,12 +35,7 @@ class BasicPopulation:
         self.merit = [cpu.merit for cpu in self.pop_list]
         self.generation = [cpu.num_divides for cpu in self.pop_list]
 
-        # there's an itertool for this in python 3.2+ -- man that will be nice (and hopefully faster)
-
-        self.cumulative_sum = BasicPopulation.cumulative_sum(self.merit)
-        merit_sum = float(self.cumulative_sum[-1])
-        self.cumulative_sum = map(lambda x: x/merit_sum, self.cumulative_sum)
-
+        self.scheduler = BasicProbScheduler(self.merit, self.ctx)
         self.curr = 0
 
     def recalculte_cumulative_merit_array(self):
@@ -70,7 +66,7 @@ class BasicPopulation:
         raise ValueError
 
     def step(self):
-        self.pop_list[BasicPopulation.find_le(self.cumulative_sum, self.ctx.random.random())].step()
+        self.pop_list[self.scheduler.schedule_cpu()].step()
         # self.ctx.random.choice(self.pop_list).step()
 
     # divide hook to randomly place an offspring
@@ -95,22 +91,22 @@ class BasicPopulation:
 
         inject_id = self.ctx.random.choice(self.pop_list).id
 
+        old_inject_merit = self.merit[inject_id]
+
         self.fitness[inject_id] = fitness
         self.merit[inject_id] = merit
         self.generation[inject_id] = cpu.num_divides
 
-        if not self.pop_list[inject_id].inject_genome(offspring, cpu.num_divides, fitness, merit) or old_merit is not merit:
-            self.recalculte_cumulative_merit_array()
+        if old_merit is not merit:
+            self.scheduler.update_merit(cpu.id, merit)
+
+        if old_inject_merit is not merit:
+            self.scheduler.update_merit(inject_id, merit)
 
         return None
 
     def end_update(self):
         length = float(len(self.pop_list))
-
-        #sum_fit = sum(map(lambda cpu: cpu.fitness, self.pop_list))
-        #self.average_fitness = sum(map(lambda cpu: cpu.fitness, self.pop_list)) / length
-        #self.average_merit = sum(map(lambda cpu: cpu.merit, self.pop_list)) / length
-        #self.average_generation = sum(map(lambda cpu: cpu.num_divides, self.pop_list)) / length
 
         self.average_fitness = sum(self.fitness) / length
         self.average_merit = sum(self.merit) / length

@@ -20,9 +20,9 @@ def revert_genome(inst_set, genome):
     
     return genome_string
 
-# wrapped in a fuction so that we can profile each update
+# wrapped in a function so that we can profile each update
 def run_update(cpu_cycles, population):
-    for tick in xrange(0,cpu_cycles):
+    for tick in xrange(0, cpu_cycles):
         population.step()
 
     population.end_update()
@@ -62,5 +62,5 @@ def main():
     return None
 
 if __name__=="__main__":
-    cProfile.run('main()')
-    #main()
+    # cProfile.run('main()')
+    main()

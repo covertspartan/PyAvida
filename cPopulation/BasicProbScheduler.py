@@ -1,4 +1,4 @@
-from bisect import bisect_left
+from cContext import ccontext
 import random
 
 # A quick and dirty probabilistic priority queue scheduler, based on a d-ary heap
@@ -8,11 +8,18 @@ class BasicProbScheduler:
 
     @staticmethod
     def find_le(a, x):
-        i = bisect_left(a,x)
-        if i:
-            return i
-        else:
-            return 0
+        index = 0
+
+        while a[index] <= x:
+            index += 1
+
+        return index
+
+        # i = bisect_left(a,x)
+        # if i:
+        #     return i
+        # else:
+        #     return 0
 
     @staticmethod
     def cumulative_sum(array):
@@ -26,19 +33,22 @@ class BasicProbScheduler:
 
         return result
 
-    def __init__(self, merit_array, block_size=10):
+    def __init__(self, merit_array, ctx, block_size=10):
 
         # size of the blocks to search
         self.block_size = block_size
 
+        # context object for access to RNG
+        self.ctx = ctx
+
         # build the leafs of the heap
         master_schedule = [[BasicProbScheduler.cumulative_sum(merit_array[start_position:start_position+self.block_size])
-                           for start_position in xrange(0, len(merit_array), 10)]]
+                           for start_position in xrange(0, len(merit_array), self.block_size)]]
 
         # build the interior nodes of the heap
         while len(master_schedule[-1]) is not self.block_size:
             master_schedule.append([BasicProbScheduler.cumulative_sum([sub_block[-1] for sub_block in master_schedule[-1][start_position:start_position+self.block_size]])
-                                    for start_position in xrange(0, len(master_schedule[-1]), 10)])
+                                    for start_position in xrange(0, len(master_schedule[-1]), self.block_size)])
 
         # build the root of the heap
         master_schedule.append(BasicProbScheduler.cumulative_sum([sub_block[-1] for sub_block in master_schedule[-1]]))
@@ -55,6 +65,8 @@ class BasicProbScheduler:
     # update the merit of a particular entry -- this is where the major speed up comes from
     # should be able to update the heap in big-Oh(block size * (log(pop size) / log (block size))) time
     def update_merit(self, index, new_merit):
+
+        self.reschedule = True
 
         # update our list of raw merits
         self.merit_array[index] = new_merit
@@ -84,7 +96,7 @@ class BasicProbScheduler:
         return None
 
     def schedule_cpu(self):
-        random_search = rng.random() * self.total_merit
+        random_search = self.ctx.random.random() * self.total_merit
 
         index = 0  # running count of the index
 
@@ -124,27 +136,37 @@ class BasicProbScheduler:
 
         return index
 
+def scheduler_dry_run(scheduler):
+
+    test_count = 0
+
+    for i in xrange(1, 300000):
+        cpu_index = scheduler.schedule_cpu()
+
+        if cpu_index == 8765:
+            test_count += 1
+
+    print "Target CPU was scheduled {:d} times.".format(test_count)
 
 
+# test code, left in for future unit test framework
 if __name__ == "__main__":
-    rng = random.Random(81083)
+    ctx = ccontext.cContext(81083)
 
     dummy_merit_array = [1.0] * 10000
 
     cumulative_dummy_array = BasicProbScheduler.cumulative_sum(dummy_merit_array)
 
-    scheduler = BasicProbScheduler(dummy_merit_array)
+    scheduler = BasicProbScheduler(dummy_merit_array, ctx, block_size=10)
 
     # this cpu will have merit equal to the rest of the cpus combined
     # should be scheduled ~50% of the time
     scheduler.update_merit(8765, 10001.0)
 
-    test_count = 0
+    print "scheduler {:f}".format(scheduler.total_merit)
 
-    for i in xrange(1, 10000):
-        cpu_index = scheduler.schedule_cpu()
-        if cpu_index == 8765:
-            test_count += 1
+    import cProfile
 
-    print "Target CPU was scheduled {:d} times.".format(test_count)
+    cProfile.run('scheduler_dry_run(scheduler)')
+
 
