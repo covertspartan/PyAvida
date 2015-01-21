@@ -83,6 +83,8 @@ class CPU:
 
         self.id = id
 
+        self.divide_check = lambda cpu: True
+
     def copy(self):
         return CPU(self.ctx, self.inst_set, orig=self)
 

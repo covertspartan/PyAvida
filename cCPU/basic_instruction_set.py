@@ -317,8 +317,14 @@ class BasicInstructionSet:
     @staticmethod
     def h_divide(cpu):
         #@TODO Some evloved orgs from big-avida rely on restrictions here to self-replicate at the usual time, consider adding such restrictions back in
-        #this only works if the write head is in the correct place
+        # this only works if the write head is in the correct place and the divide checks return true
         if cpu.write is not cpu.read:
+
+            # what do the offspring and parent look like so far?
+            if not cpu.divide_check(cpu):
+                cpu.increment_ip()
+                return False
+
             offspring = cpu.genome[cpu.read:cpu.write]
             cpu.genome = cpu.genome[0:cpu.read]
             cpu.genome_len = len(cpu.genome)

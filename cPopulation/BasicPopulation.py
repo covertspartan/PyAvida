@@ -29,6 +29,14 @@ class BasicPopulation:
             if env is not None:
                 self.pop_list[-1].register_output_hook(env.output_hook)
 
+            # The BasicCPU has no divide checks by default, we'll give it some.
+            # Let's make sure the Offspring genome has copied a significant
+            # chunk of its genome before we let it try a divide
+            self.pop_list[-1].divide_check = lambda cpu: \
+                False if cpu.executed_length < (len(cpu.genome[cpu.read:cpu.write]) * 0.5) or \
+                (len(cpu.genome[0:cpu.read]) * 2) < len(cpu.genome[cpu.read:cpu.write]) or \
+                (len(cpu.genome[0:cpu.read]) * 0.5) > len(cpu.genome[cpu.read:cpu.write]) else True
+
             self.pop_list[-1].id = x
 
         self.fitness = [cpu.fitness for cpu in self.pop_list]
@@ -71,12 +79,6 @@ class BasicPopulation:
 
     # divide hook to randomly place an offspring
     def divide_hook(self, cpu, offspring):
-
-        # check to make sure the org is actually ready to divide, if not, it is dead
-        if cpu.genome_len < (cpu.executed_length * 0.5) \
-                or (cpu.genome_len * 2) < len(offspring) \
-                or (cpu.genome_len * 0.5) > len(offspring):
-            return False
 
         self.divide_count += 1
 

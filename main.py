@@ -33,12 +33,12 @@ def main():
 
     inst_set = BasicInstructionSet()
 
-    cpu = BasicCPU.CPU(ctx, inst_set, build_genome(inst_set, fGetBasicTestOrgs.getDefaultGenome()))
+    # cpu = BasicCPU.CPU(ctx, inst_set, build_genome(inst_set, fGetBasicTestOrgs.getDefaultGenome()))
 
     #test cases from lensiki et al 2003 test case lineage
-    #cpu = BasicCPU.CPU(ctx, inst_set, build_genome(inst_set, 'rucavcccccccccccccccccccccccccpccchccccccutycasvab'))
-    #cpu = BasicCPU.CPU(ctx, inst_set, build_genome(inst_set, 'rucavcozjccscicccccccccccamxelqcnqhccpcqcutycastvab'))
-
+    # cpu = BasicCPU.CPU(ctx, inst_set, build_genome(inst_set, 'rucavcotzjciscicccccccccccamxelqcnqhpcpcqcutycastvab'))
+    # cpu = BasicCPU.CPU(ctx, inst_set, build_genome(inst_set, 'rucavcozjccscicccccccccccamxelqcnqhccpcqcutycastvab'))
+    cpu = BasicCPU.CPU(ctx, inst_set, build_genome(inst_set, 'rucavcotzjciscicccnccccckcamqelqcpqhpcpcqcutycastvab'))
     environment = BasicLogic9Enironment.BasicLogic9Environment()
 
     population = BasicPopulation.BasicPopulation(ctx, cpu, 100, 100, environment)
