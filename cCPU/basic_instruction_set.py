@@ -266,11 +266,9 @@ class BasicInstructionSet:
     @staticmethod
     def nand(cpu):
         reg1, extra_step = BasicInstructionSet.which_register(cpu)
-        #print bin(cpu.registers[1])
-        #print bin(cpu.registers[2])
+
         cpu.registers[reg1] = ~(cpu.registers[1] & cpu.registers[2]) & 0xffffffff
 
-        #print bin(cpu.registers[reg1])
 
         cpu.increment_ip(1+extra_step)
 
@@ -282,7 +280,7 @@ class BasicInstructionSet:
 
         cpu.outputs.append(cpu.registers[reg1])
 
-        #conceptually, the output hooks should be handled before the input state is changed
+        # conceptually, the output hooks should be handled before the input state is changed
         for func in cpu.output_hooks:
             func(cpu)
 
@@ -292,7 +290,7 @@ class BasicInstructionSet:
         cpu.increment_ip(1+extra_step)
         return None
 
-    #allocate genome space -- need a max length so that we don't run off the rails
+    # allocate genome space -- need a max length so that we don't run off the rails
     @staticmethod
     def h_alloc(cpu):
         #print cpu.genome
@@ -301,13 +299,10 @@ class BasicInstructionSet:
             new_len = cpu.genome_max_len
 
         cpu.genome += [BasicInstructionSet.nop_c] * cpu.genome_len
-        #for i in xrange(cpu.genome_len, new_len):
-        #    cpu.genome.append(BasicInstructionSet.nop_c)
 
         cpu.execution_trace += [0] * cpu.genome_len
         cpu.registers[0] = new_len
         cpu.genome_len = new_len
-
 
         cpu.increment_ip()
 
@@ -333,10 +328,6 @@ class BasicInstructionSet:
                 func(cpu, offspring)
 
             cpu.reset()
-
-            #print "offspring ({:d}): {:s}".format(len(offspring), offspring)
-            #print "genome ({:d}): {:s}".format(len(cpu.genome), cpu.genome)
-            #quit()
 
         return None
 

@@ -1,5 +1,4 @@
 from BasicProbScheduler import BasicProbScheduler
-from bisect import bisect_left
 
 # REALLY basic population class
 #@TODO: implement a full scheduler (once we have a concept of merit)
@@ -47,33 +46,6 @@ class BasicPopulation:
 
         self.scheduler = BasicProbScheduler(self.merit, self.ctx)
         self.curr = 0
-
-    def recalculte_cumulative_merit_array(self):
-        self.cumulative_sum = BasicPopulation.cumulative_sum(self.merit)
-        merit_sum = float(self.cumulative_sum[-1])
-        self.cumulative_sum = map(lambda x: x/merit_sum, self.cumulative_sum)
-
-
-    @staticmethod
-    def cumulative_sum(array):
-        result = [0.0] * len(array)
-        for i, element in enumerate(array):
-            if i is 0:
-                result[i] = element
-            else:
-                result[i] = element + result[i-1]
-
-        return result
-
-
-    @staticmethod
-    def find_le(a, x):
-        i = bisect_left(a,x)
-        if i:
-            return i
-        else:
-            return 0
-        raise ValueError
 
     def step(self):
         self.pop_list[self.scheduler.schedule_cpu()].step()
@@ -135,4 +107,5 @@ class BasicPopulation:
         self.average_fitness = sum(self.fitness) / length
         self.average_merit = sum(self.merit) / length
         self.average_generation = sum(self.generation) / length
+
         return None
