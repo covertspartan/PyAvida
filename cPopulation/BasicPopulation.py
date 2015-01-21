@@ -71,6 +71,13 @@ class BasicPopulation:
 
     # divide hook to randomly place an offspring
     def divide_hook(self, cpu, offspring):
+
+        # check to make sure the org is actually ready to divide, if not, it is dead
+        if cpu.genome_len < (cpu.executed_length * 0.5) \
+                or (cpu.genome_len * 2) < len(offspring) \
+                or (cpu.genome_len * 0.5) > len(offspring):
+            return False
+
         self.divide_count += 1
 
         # calculate fitness
