@@ -112,6 +112,9 @@ class BasicPopulation:
         if old_inject_merit is not merit:
             self.scheduler.update_merit(inject_id, merit)
 
+        if not all(map(lambda (x, y): x is y, zip(cpu.genome, offspring))):
+            print "Well shit"
+
         return None
 
     def end_update(self):
