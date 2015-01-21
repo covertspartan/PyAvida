@@ -114,6 +114,9 @@ class BasicPopulation:
         self.fitness[inject_id] = fitness
         self.merit[inject_id] = merit
         self.generation[inject_id] = cpu.num_divides
+        self.speculative_execution[inject_id] = 0
+
+        self.pop_list[inject_id].inject_genome(offspring, self.generation[inject_id], fitness, merit)
 
         if old_merit is not merit:
             self.scheduler.update_merit(cpu.id, merit)

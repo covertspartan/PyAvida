@@ -185,7 +185,7 @@ class CPU:
         # execute the next instruction
         self.genome[self.ip](self)
 
-    def execute_ahead(self, number_steps=10):
+    def execute_ahead(self, number_steps=30):
         count = 1
         self.step()
 
