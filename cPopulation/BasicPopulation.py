@@ -43,6 +43,8 @@ class BasicPopulation:
         self.merit = [cpu.merit for cpu in self.pop_list]
         self.generation = [cpu.num_divides for cpu in self.pop_list]
 
+        self.speculative_execution = [0] * self.max_pop_size
+
         self.scheduler = BasicProbScheduler(self.merit, self.ctx)
         self.curr = 0
 
@@ -75,7 +77,14 @@ class BasicPopulation:
 
     def step(self):
         self.pop_list[self.scheduler.schedule_cpu()].step()
-        # self.ctx.random.choice(self.pop_list).step()
+
+    def speculative_step(self):
+        scheduled_id = self.scheduler.schedule_cpu()
+
+        if self.speculative_execution[scheduled_id] > 0:
+            self.speculative_execution[scheduled_id] -= 1
+        else:
+            self.speculative_execution[scheduled_id] += self.pop_list[scheduled_id].execute_ahead()
 
     # divide hook to randomly place an offspring
     def divide_hook(self, cpu, offspring):

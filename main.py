@@ -23,7 +23,8 @@ def revert_genome(inst_set, genome):
 # wrapped in a function so that we can profile each update
 def run_update(cpu_cycles, population):
     for tick in xrange(0, cpu_cycles):
-        population.step()
+        # population.step()
+        population.speculative_step()
 
     population.end_update()
     return None

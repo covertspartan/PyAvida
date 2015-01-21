@@ -526,6 +526,8 @@ class BasicInstructionSet:
         #let's define nops and nop complements for  quick lookup
         self.nops = {BasicInstructionSet.nop_a: 0, BasicInstructionSet.nop_b: 1, BasicInstructionSet.nop_c: 2}
 
+        self.interactive_inst = set((BasicInstructionSet.io, BasicInstructionSet.h_divide))
+
         self.nop_complement = (1, 2, 0)
 
         #reverse the instruction set for fast decoding.
