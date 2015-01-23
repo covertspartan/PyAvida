@@ -58,6 +58,7 @@ def main():
     decoded_genome = map(decode_genome, random_cpu.genome)
 
     print "Random genome {:s} which underwent {:d} self-replication cycles".format(str(decoded_genome), random_cpu.num_divides)
+    print "Random genome hash: {:d}".format(hash(random_cpu))
 
     print cpu.ip, cpu.flow
     return None

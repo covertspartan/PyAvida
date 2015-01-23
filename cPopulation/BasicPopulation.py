@@ -81,19 +81,15 @@ class BasicPopulation:
 
         inject_id = self.ctx.random.choice(self.pop_list).id
 
-        old_inject_merit = self.merit[inject_id]
-
         self.fitness[inject_id] = fitness
         self.merit[inject_id] = merit
         self.generation[inject_id] = cpu.num_divides
         self.speculative_execution[inject_id] = 0
 
-        self.pop_list[inject_id].inject_genome(offspring, self.generation[inject_id], fitness, merit)
-
         if old_merit is not merit:
             self.scheduler.update_merit(cpu.id, merit)
 
-        if old_inject_merit is not merit:
+        if self.pop_list[inject_id].inject_genome(offspring, self.generation[inject_id], fitness, merit):
             self.scheduler.update_merit(inject_id, merit)
 
         if not all(map(lambda (x, y): x is y, zip(cpu.genome, offspring))):

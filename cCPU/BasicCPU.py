@@ -1,6 +1,4 @@
 from cContext import ccontext
-
-# from sys import getsizeof
 from copy import deepcopy
 
 # the instruction set has been de-coupled from the cpu for two reasons
@@ -10,7 +8,7 @@ from copy import deepcopy
 class CPU:
     def __init__(self, ctx, inst_set, genome=None, orig=None, id = None):
 
-        #handel copy constructor operation
+        # handel copy constructor operation
         if orig is not None:
             self.ctx = orig.ctx
             self.inst_set = orig.inst_set
@@ -22,10 +20,11 @@ class CPU:
             self.ctx = ctx
             self.inst_set = inst_set
             self.genome = genome
-            self.genome_len = len(genome)
+            self.genome_len = len(self.genome)
             self.execution_trace = [0] * self.genome_len
             self.num_divides = 0
 
+        self.original_genome = tuple(self.genome)
         self.registers = [0, 0, 0]
 
         self.nops = inst_set.nops
@@ -76,7 +75,7 @@ class CPU:
         self.func_triggers = 0x0
 
         self.env_bonus = 1
-        self.merit = 1
+        self.merit = 1.0
         self.fitness = self.merit / self.genome_len
 
         self.executed_length = 0
@@ -84,6 +83,9 @@ class CPU:
         self.id = id
 
         self.divide_check = lambda cpu: True
+
+    def __hash__(self):
+        return hash(self.original_genome)
 
     def copy(self):
         return CPU(self.ctx, self.inst_set, orig=self)
@@ -194,7 +196,6 @@ class CPU:
             count += 1
 
         return count
-
 
     def register_divide_hook(self, func):
         self.divide_hooks.append(func)
