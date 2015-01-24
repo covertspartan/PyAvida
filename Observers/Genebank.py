@@ -52,5 +52,4 @@ class genebank:
         for curr_cpu in population.pop_list:
             genome_id = self.add_entry(curr_cpu.original_genome, curr_cpu)
             curr_cpu.genome_id = genome_id
-            count += 1
 
