@@ -47,9 +47,19 @@ class BasicPopulation:
         self.scheduler = BasicProbScheduler(self.merit, self.ctx)
         self.curr = 0
 
+        self.inject_hooks = []
+
+    def register_inject_hook(self, func):
+        self.inject_hooks.append(func)
+
+    # basic step, schedule and run one CPU for one clock tick
     def step(self):
         self.pop_list[self.scheduler.schedule_cpu()].step()
 
+    # execute a speculative step
+    # schedule and speculatively run a cpu
+    # runs CPUs 30 clock ticks ahead of where they're suppose to be, or until they need to interact with the environment
+    # avoids pulling CPUs in and out of memory until they actually need to interact with the environment
     def speculative_step(self):
         scheduled_id = self.scheduler.schedule_cpu()
 
@@ -57,6 +67,23 @@ class BasicPopulation:
             self.speculative_execution[scheduled_id] -= 1
         else:
             self.speculative_execution[scheduled_id] += self.pop_list[scheduled_id].execute_ahead()
+
+    # helper function for divide hook
+    # inject a genome into a random point in the population
+    # this is what makes us a mass action population
+    def inject(self, cpu, fitness, merit, offspring):
+        inject_id = self.ctx.random.choice(self.pop_list).id
+
+        self.fitness[inject_id] = fitness
+        self.merit[inject_id] = merit
+        self.generation[inject_id] = cpu.num_divides
+        self.speculative_execution[inject_id] = 0
+
+        for inject_hook in self.inject_hooks:
+            inject_hook(cpu, self.pop_list[inject_id], offspring)
+
+        if self.pop_list[inject_id].inject_genome(offspring, self.generation[inject_id], fitness, merit):
+            self.scheduler.update_merit(inject_id, merit)
 
     # divide hook to randomly place an offspring
     def divide_hook(self, cpu, offspring):
@@ -79,18 +106,10 @@ class BasicPopulation:
         self.merit[cpu.id] = merit
         self.generation[cpu.id] = cpu.num_divides
 
-        inject_id = self.ctx.random.choice(self.pop_list).id
-
-        self.fitness[inject_id] = fitness
-        self.merit[inject_id] = merit
-        self.generation[inject_id] = cpu.num_divides
-        self.speculative_execution[inject_id] = 0
-
         if old_merit is not merit:
             self.scheduler.update_merit(cpu.id, merit)
 
-        if self.pop_list[inject_id].inject_genome(offspring, self.generation[inject_id], fitness, merit):
-            self.scheduler.update_merit(inject_id, merit)
+        self.inject(cpu, fitness, merit, offspring)
 
         if not all(map(lambda (x, y): x is y, zip(cpu.genome, offspring))):
             print "Well shit"
@@ -103,5 +122,7 @@ class BasicPopulation:
         self.average_fitness = sum(self.fitness) / length
         self.average_merit = sum(self.merit) / length
         self.average_generation = sum(self.generation) / length
+
+        self.ctx.update += 1
 
         return None

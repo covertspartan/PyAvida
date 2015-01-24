@@ -35,3 +35,14 @@ def getEquGenome():
 # used to make sure input state of cpu is updating correctly
 def getNandOrGenome():
     return 'rucavcccccccqqcpqbcccqgfcpaqgfcpicpqbccccutycasvab'
+
+# actual evolved organisms from Lenski et al 2003 -- will create anomalous behavior without
+# proper checks for a good divide
+def getLenski2003Org22():
+    return 'rucavcotzjciscicccnccccckcamqelqcpqhpcpcqcutycastvab'
+
+def getLenski2003Org17():
+    return 'rucavcozjccscicccccccccccamxelqcnqhccpcqcutycastvab'
+
+def getLenski2003Org20():
+    return 'rucavcotzjciscicccccccccccamxelqcnqhpcpcqcutycastvab'

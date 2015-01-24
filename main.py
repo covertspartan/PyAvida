@@ -4,6 +4,7 @@ from cCPU.basic_instruction_set import BasicInstructionSet
 from cPopulation import BasicPopulation
 from cEnvironment import BasicLogic9Enironment
 from cTestingTools import fGetBasicTestOrgs
+from Observers import Genebank
 
 import cProfile
 
@@ -34,21 +35,23 @@ def main():
 
     inst_set = BasicInstructionSet()
 
-    # cpu = BasicCPU.CPU(ctx, inst_set, build_genome(inst_set, fGetBasicTestOrgs.getDefaultGenome()))
-
-    #test cases from lensiki et al 2003 test case lineage
-    # cpu = BasicCPU.CPU(ctx, inst_set, build_genome(inst_set, 'rucavcotzjciscicccccccccccamxelqcnqhpcpcqcutycastvab'))
-    # cpu = BasicCPU.CPU(ctx, inst_set, build_genome(inst_set, 'rucavcozjccscicccccccccccamxelqcnqhccpcqcutycastvab'))
-    cpu = BasicCPU.CPU(ctx, inst_set, build_genome(inst_set, 'rucavcotzjciscicccnccccckcamqelqcpqhpcpcqcutycastvab'))
     environment = BasicLogic9Enironment.BasicLogic9Environment()
 
+    genebank = Genebank.genebank(ctx)
+
+    cpu = BasicCPU.CPU(ctx, inst_set, build_genome(inst_set, fGetBasicTestOrgs.getLenski2003Org22()))
+
+    cpu.id = genebank.add_entry(cpu.original_genome, cpu)
+
     population = BasicPopulation.BasicPopulation(ctx, cpu, 100, 100, environment)
+    population.register_inject_hook(genebank.inject_hook)
 
     environment.attach_population(population)
 
+    print "Update {:d}, orgs born: {:d}, average fitness: {:f}, average generation: {:f}".format(ctx.update, population.divide_count, population.average_fitness, population.average_generation)
     for updates in range(0, 100):
         run_update(300000, population)
-        print "Update {:d}, orgs born: {:d}, average fitness: {:f}, average generation: {:f}".format(updates, population.divide_count, population.average_fitness, population.average_generation)
+        print "Update {:d}, orgs born: {:d}, average fitness: {:f}, average generation: {:f}".format(ctx.update, population.divide_count, population.average_fitness, population.average_generation)
 
     # a little code to verify self-replication
     random_cpu = ctx.random.choice(population.pop_list)

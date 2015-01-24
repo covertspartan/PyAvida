@@ -95,6 +95,7 @@ class CPU:
         old_merit = self.merit
 
         self.genome = genome
+        self.original_genome = tuple(genome)
         self.genome_len = len(genome)
         self.num_divides = num_divides
         self.fitness = fitness

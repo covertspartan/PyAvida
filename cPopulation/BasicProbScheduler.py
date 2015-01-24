@@ -143,7 +143,7 @@ def scheduler_dry_run(scheduler):
     for i in xrange(1, 300000):
         cpu_index = scheduler.schedule_cpu()
 
-        if cpu_index == 8765:
+        if cpu_index == 876:
             test_count += 1
 
     print "Target CPU was scheduled {:d} times.".format(test_count)
@@ -153,15 +153,15 @@ def scheduler_dry_run(scheduler):
 if __name__ == "__main__":
     ctx = ccontext.cContext(81083)
 
-    dummy_merit_array = [1.0] * 10000
+    dummy_merit_array = [1.0] * 1000
 
     cumulative_dummy_array = BasicProbScheduler.cumulative_sum(dummy_merit_array)
 
-    scheduler = BasicProbScheduler(dummy_merit_array, ctx, block_size=10)
+    scheduler = BasicProbScheduler(dummy_merit_array, ctx)
 
     # this cpu will have merit equal to the rest of the cpus combined
     # should be scheduled ~50% of the time
-    scheduler.update_merit(8765, 10001.0)
+    scheduler.update_merit(876, 1001.0)
 
     print "scheduler {:f}".format(scheduler.total_merit)
 

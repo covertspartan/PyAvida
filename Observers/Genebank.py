@@ -9,7 +9,7 @@ from cContext import ccontext
 # 5 = fitness
 # 6 = merit
 # 7 = gestation time
-# 8 = phentypic depth
+# 8 = phenotypic depth
 # 9 = genome -- only needed on
 
 class genebank:
@@ -18,7 +18,7 @@ class genebank:
 
         self.curr_id = 0
 
-        assert isinstance(ctx, ccontext)
+        assert isinstance(ctx, ccontext.cContext)
 
         self.ctx = ctx
 
@@ -28,7 +28,7 @@ class genebank:
             self.genebank[immutable_genotype][5] += 1
         else:
             self.genebank[immutable_genotype] = \
-                [self.curr_id, cpu.parent_id, ctx.update, 0,
+                [self.curr_id, cpu.id, self.ctx.update, 0,
                  1, 1, cpu.fitness, cpu.merit, cpu.gestation_time, cpu.num_divides]
 
             self.curr_id += 1
@@ -37,5 +37,11 @@ class genebank:
 
     def record_deactivation(self, immutable_genotype):
         self.genebank[immutable_genotype][4] -= 1
+        return None
+
+    def inject_hook(self, parent_cpu, target_cpu, offspring):
+        self.record_deactivation(target_cpu.original_genome)
+        genome_id = self.add_entry(tuple(offspring), parent_cpu)
+        target_cpu.id = genome_id
         return None
 
