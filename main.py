@@ -66,6 +66,12 @@ def main():
     print "Random genome hash: {:d}".format(hash(random_cpu))
 
     print cpu.ip, cpu.flow
+
+    fp = open("detail-100.spop","w")
+    genebank.dump_spop_file(fp)
+    fp.close()
+
+
     return None
 
 if __name__=="__main__":

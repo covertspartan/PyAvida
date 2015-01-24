@@ -27,9 +27,15 @@ class genebank:
             self.genebank[immutable_genotype][4] += 1
             self.genebank[immutable_genotype][5] += 1
         else:
+            readable_genome_string = ""
+            for func_pointer in immutable_genotype:
+                readable_genome_string += target_cpu.inst_set.decode_inst_set[func_pointer]
+            parent_id = target_cpu.genome_id
+            if parent_id is None:
+                parent_id = -1
             self.genebank[immutable_genotype] = \
-                [self.curr_id, target_cpu.genome_id, self.ctx.update, 0,
-                 1, 1, target_cpu.fitness, target_cpu.merit, target_cpu.gestation_time, target_cpu.num_divides]
+                [self.curr_id, parent_id, self.ctx.update, -1,
+                 1, 1, target_cpu.fitness, target_cpu.merit, target_cpu.gestation_time, target_cpu.num_divides, readable_genome_string]
             target_cpu.genome_id = self.curr_id
 
             self.curr_id += 1
@@ -53,3 +59,9 @@ class genebank:
             genome_id = self.add_entry(curr_cpu.original_genome, curr_cpu)
             curr_cpu.genome_id = genome_id
 
+    def dump_spop_file(self, file_pointer):
+        string_format = "{:d},{:d},{:d},{:d},{:d},{:d},{:f},{:f},{:d},{:d},{:s}"
+        for genome, entry in self.genebank.items():
+            print entry
+            print string_format
+            file_pointer.write(string_format.format(*entry))
