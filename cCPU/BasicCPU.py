@@ -6,7 +6,7 @@ from copy import deepcopy
 # 2 to create a slightly more flexible way of changing the cpu
 # in actuality this is more like a "cpu interface"
 class CPU:
-    def __init__(self, ctx, inst_set, genome=None, orig=None, id = None):
+    def __init__(self, ctx, inst_set, genome=None, orig=None, genome_id = None):
 
         # handel copy constructor operation
         if orig is not None:
@@ -80,7 +80,7 @@ class CPU:
 
         self.executed_length = 0
 
-        self.id = id
+        self.genome_id = genome_id
 
         self.divide_check = lambda cpu: True
 

@@ -22,14 +22,15 @@ class genebank:
 
         self.ctx = ctx
 
-    def add_entry(self, immutable_genotype, cpu):
+    def add_entry(self, immutable_genotype, target_cpu):
         if immutable_genotype in self.genebank:
             self.genebank[immutable_genotype][4] += 1
             self.genebank[immutable_genotype][5] += 1
         else:
             self.genebank[immutable_genotype] = \
-                [self.curr_id, cpu.id, self.ctx.update, 0,
-                 1, 1, cpu.fitness, cpu.merit, cpu.gestation_time, cpu.num_divides]
+                [self.curr_id, target_cpu.genome_id, self.ctx.update, 0,
+                 1, 1, target_cpu.fitness, target_cpu.merit, target_cpu.gestation_time, target_cpu.num_divides]
+            target_cpu.genome_id = self.curr_id
 
             self.curr_id += 1
 
@@ -44,11 +45,12 @@ class genebank:
     def inject_hook(self, parent_cpu, target_cpu, offspring):
         self.record_deactivation(target_cpu.original_genome)
         genome_id = self.add_entry(tuple(offspring), parent_cpu)
-        target_cpu.id = genome_id
+        target_cpu.genome_id = genome_id
         return None
 
     def attach_population(self, population):
-        for cpu in population.pop_list:
-            genome_id = self.add_entry(cpu.original_genome, cpu)
-            cpu.id = genome_id
+        for curr_cpu in population.pop_list:
+            genome_id = self.add_entry(curr_cpu.original_genome, curr_cpu)
+            curr_cpu.genome_id = genome_id
+            count += 1
 
