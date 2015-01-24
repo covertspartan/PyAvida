@@ -37,6 +37,8 @@ class genebank:
 
     def record_deactivation(self, immutable_genotype):
         self.genebank[immutable_genotype][4] -= 1
+        if self.genebank[immutable_genotype][4] is 0:
+            self.genebank[immutable_genotype][3] = self.ctx.update
         return None
 
     def inject_hook(self, parent_cpu, target_cpu, offspring):
@@ -44,4 +46,9 @@ class genebank:
         genome_id = self.add_entry(tuple(offspring), parent_cpu)
         target_cpu.id = genome_id
         return None
+
+    def attach_population(self, population):
+        for cpu in population.pop_list:
+            genome_id = self.add_entry(cpu.original_genome, cpu)
+            cpu.id = genome_id
 

@@ -41,10 +41,12 @@ def main():
 
     cpu = BasicCPU.CPU(ctx, inst_set, build_genome(inst_set, fGetBasicTestOrgs.getLenski2003Org22()))
 
-    cpu.id = genebank.add_entry(cpu.original_genome, cpu)
-
     population = BasicPopulation.BasicPopulation(ctx, cpu, 100, 100, environment)
+
+    # tell the genebank and the population to talk to one another
     population.register_inject_hook(genebank.inject_hook)
+    # genebank.add_entry(cpu.original_genome, cpu)
+    genebank.attach_population(population)
 
     environment.attach_population(population)
 
