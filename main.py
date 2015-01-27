@@ -2,6 +2,7 @@ from cCPU import BasicCPU
 from cContext import ccontext
 from cCPU.basic_instruction_set import BasicInstructionSet
 from cPopulation import BasicPopulation
+from cPopulation import MutationHooks
 from cEnvironment import BasicLogic9Enironment
 from cTestingTools import fGetBasicTestOrgs
 from Observers import Genebank
@@ -31,7 +32,7 @@ def run_update(cpu_cycles, population):
     return None
 
 def main():
-    ctx = ccontext.cContext(81083)
+    ctx = ccontext.cContext(1)
 
     inst_set = BasicInstructionSet()
 
@@ -39,21 +40,35 @@ def main():
 
     genebank = Genebank.genebank(ctx)
 
-    cpu = BasicCPU.CPU(ctx, inst_set, build_genome(inst_set, fGetBasicTestOrgs.getLenski2003Org22()))
+    cpu = BasicCPU.CPU(ctx, inst_set, build_genome(inst_set, fGetBasicTestOrgs.getDefaultGenome()))
 
     population = BasicPopulation.BasicPopulation(ctx, cpu, 100, 100, environment)
 
+    mutatator = MutationHooks.DivideMutation(ctx, 0.25)
+
     # tell the genebank and the population to talk to one another
     population.register_inject_hook(genebank.inject_hook)
-    # genebank.add_entry(cpu.original_genome, cpu)
     genebank.attach_population(population)
 
     environment.attach_population(population)
 
+    population.register_mutation_hook(mutatator.mutation)
+
     print "Update {:d}, orgs born: {:d}, average fitness: {:f}, average generation: {:f}".format(ctx.update, population.divide_count, population.average_fitness, population.average_generation)
     for updates in range(0, 100):
-        run_update(300000, population)
+        run_update(75000, population)
         print "Update {:d}, orgs born: {:d}, average fitness: {:f}, average generation: {:f}".format(ctx.update, population.divide_count, population.average_fitness, population.average_generation)
+        # if updates > 34:
+        #     max_fitness = 0
+        #     max_index = -1
+        #     for i, curr_fit in enumerate(population.fitness):
+        #         if curr_fit > max_fitness:
+        #             max_fitness = curr_fit
+        #             max_index = i
+        #     print max_fitness, max_index
+        #     max_cpu = population.pop_list[max_index]
+
+
 
     # a little code to verify self-replication
     random_cpu = ctx.random.choice(population.pop_list)

@@ -48,9 +48,13 @@ class BasicPopulation:
         self.curr = 0
 
         self.inject_hooks = []
+        self.mutation_hooks = []
 
     def register_inject_hook(self, func):
         self.inject_hooks.append(func)
+
+    def register_mutation_hook(self, func):
+        self.mutation_hooks.append(func)
 
     # basic step, schedule and run one CPU for one clock tick
     def step(self):
@@ -109,10 +113,14 @@ class BasicPopulation:
         if old_merit is not merit:
             self.scheduler.update_merit(cpu.id, merit)
 
+        if self.mutation_hooks is not None:
+            for func in self.mutation_hooks:
+                offspring = func(cpu, offspring)
+
         self.inject(cpu, fitness, merit, offspring)
 
-        if not all(map(lambda (x, y): x is y, zip(cpu.genome, offspring))):
-            print "Well shit"
+        # if not all(map(lambda (x, y): x is y, zip(cpu.genome, offspring))):
+        #     print "Well shit"
 
         return None
 

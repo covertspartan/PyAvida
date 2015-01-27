@@ -100,6 +100,9 @@ class BasicInstructionSet:
     #figure out which register to use
     @staticmethod
     def which_register(cpu):
+        if cpu.ip + 1 >= cpu.genome_len:
+            return 1, 0
+
         nop = cpu.nops.get(cpu.genome[cpu.ip+1], None)
 
         if nop is not None:
@@ -138,9 +141,12 @@ class BasicInstructionSet:
     def pop(cpu):
         register, extra_step = BasicInstructionSet.which_register(cpu)
 
-        cpu.registers[register] = cpu.stacks[cpu.curr_stack][-1]
+        if len(cpu.stacks[cpu.curr_stack]) > 1:
+            cpu.registers[register] = cpu.stacks[cpu.curr_stack][-1]
+            del cpu.stacks[cpu.curr_stack][-1]
+        else:
+            cpu.registers[register] = 0
 
-        del cpu.stacks[cpu.curr_stack][-1]
 
         #print cpu.registers
         #print cpu.stacks
@@ -328,16 +334,28 @@ class BasicInstructionSet:
                 func(cpu, offspring)
 
             cpu.reset()
+        else:
+            cpu.increment_ip()
 
         return None
 
     @staticmethod
     def h_copy(cpu):
+
+        # the genome is circular, so if necessary, loop read and write heads around
+        if cpu.write >= cpu.genome_len:
+            cpu.write = cpu.write % cpu.genome_len
+
+        if cpu.read >= cpu.genome_len:
+            cpu.read = cpu.read % cpu.genome_len
+
         cpu.genome[cpu.write] = cpu.genome[cpu.read]
         cpu.copy_buffer.append(cpu.genome[cpu.read])
 
+        # advance the read and write heads
         cpu.write += 1
         cpu.read += 1
+
         cpu.increment_ip()
 
         return None
@@ -346,7 +364,7 @@ class BasicInstructionSet:
     def h_search(cpu):
         label, extra_steps = BasicInstructionSet.findLabel(cpu)
 
-        #this will only happen if complement label is not found
+        # this will only happen if complement label is not found
         if label is None:
             cpu.registers[1] = 0
             cpu.registers[2] = 0
@@ -377,16 +395,11 @@ class BasicInstructionSet:
 
     @staticmethod
     def mov_head(cpu):
-        nop = cpu.nops.get(cpu.genome[cpu.ip+1], None)
-        step = 2
+        nop, step = BasicInstructionSet.check_for_nop(cpu)
 
-        if nop is None:
-            step = 1
-            nop = 0
+        cpu.changeHead(nop, cpu.flow)
 
-        cpu.changeHead(nop,cpu.flow)
-
-        #ONLY increment the IP IF we haven't already moved it.
+        # ONLY increment the IP IF we haven't already moved it.
         if nop is not 0:
             cpu.increment_ip(step)
 
@@ -394,28 +407,30 @@ class BasicInstructionSet:
 
     @staticmethod
     def jmp_head(cpu):
-        nop = cpu.nops.get(cpu.genome[cpu.ip+1], None)
-        step = 2
+        nop, step = BasicInstructionSet.check_for_nop(cpu)
 
-        if nop is None:
-            step = 1
-            nop = 0
+        cpu.changeHead(nop, (cpu.getHead(2) + cpu.registers[2]) % cpu.genome_len)
 
-        cpu.changeHead(nop, cpu.getHead(2) + cpu.registers[2] % cpu.genome_len)
-
-        #do not increment the IP if we just moved it
+        # do not increment the IP if we just moved it
         if nop is not 0:
             cpu.increment_ip(step)
         return None
 
+    # helper function to make see if the next instruction is a nop
     @staticmethod
-    def get_head(cpu):
-        nop = cpu.nops.get(cpu.genome[cpu.ip+1], None)
+    def check_for_nop(cpu, default=0):
+        nop = None
+        if cpu.ip + 1 < cpu.genome_len:
+            nop = cpu.nops.get(cpu.genome[cpu.ip + 1], None)
         step = 2
-
         if nop is None:
             step = 1
-            nop = 0
+            nop = default
+        return nop, step
+
+    @staticmethod
+    def get_head(cpu):
+        nop, step = BasicInstructionSet.check_for_nop(cpu)
 
         cpu.registers[2] = cpu.getHead(nop)
 
@@ -425,7 +440,7 @@ class BasicInstructionSet:
     @staticmethod
     def if_label(cpu):
         label, extra_steps = BasicInstructionSet.findLabel(cpu)
-        #print "here"
+
         if label is None:
             cpu.increment_ip()
             return None
@@ -434,31 +449,41 @@ class BasicInstructionSet:
 
         label_len = len(complement_label)
 
-        #are we going to find a match?
+        # have enough instructions been copied to possibly match the label?
+        if len(cpu.copy_buffer) < label_len:
+            cpu.increment_ip(extra_steps+2)
+            return None
+
+        # are we going to find a match?
         for i in xrange(1, label_len+1):
             nopNum = cpu.nops.get(cpu.copy_buffer[-i], None)
+
+            # prety sure these lines aren't doing anything
             if len(cpu.copy_buffer) > 48:
                 None
+
             if complement_label[-i] is not nopNum:
-                #no match, break out
+                # no match, break out
                 cpu.increment_ip(extra_steps+2)
                 return None
 
-        #if we're here, then a match was found
-        #increment IP past the label and execute the function there
+        # if we're here, then a match was found
+        # increment IP past the label and execute the function there
         cpu.increment_ip(extra_steps+1)
 
         return None
 
     @staticmethod
     def set_flow(cpu):
-        nop = cpu.nops.get(cpu.genome[cpu.ip+1], None)
-        step = 2
-
-        #default to the CX register
-        if nop is None:
-            nop = 2
-            step = 1
+        # check the nop, to chose the register, but default to the CX register
+        nop, step = BasicInstructionSet.check_for_nop(cpu,2)
+        # nop = cpu.nops.get(cpu.genome[cpu.ip+1], None)
+        # step = 2
+        #
+        # #default to the CX register
+        # if nop is None:
+        #     nop = 2
+        #     step = 1
 
         #pressumbably, we mod the
         cpu.flow = cpu.registers[nop] % cpu.genome_len

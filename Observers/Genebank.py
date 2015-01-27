@@ -60,8 +60,6 @@ class genebank:
             curr_cpu.genome_id = genome_id
 
     def dump_spop_file(self, file_pointer):
-        string_format = "{:d},{:d},{:d},{:d},{:d},{:d},{:f},{:f},{:d},{:d},{:s}"
+        string_format = "{:d},{:d},{:d},{:d},{:d},{:d},{:f},{:f},{:d},{:d},{:s}\n"
         for genome, entry in self.genebank.items():
-            print entry
-            print string_format
             file_pointer.write(string_format.format(*entry))

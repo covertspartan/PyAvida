@@ -41,9 +41,6 @@ class CPU:
 
         self.heads = [self.ip, self.read, self.write]
 
-        self.stackA = []
-        self.stackB = []
-
         # @todo: make I/O environment specific -- push the initialization of these to the env class (if any)
         self.inputs = (int(self.ctx.random.getrandbits(32)),
                        int(self.ctx.random.getrandbits(32)),
@@ -60,8 +57,8 @@ class CPU:
         self.outputs = []
         self.copy_buffer = []
 
-        self.stacks = [[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                       [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]]
+        self.stacks = [[],
+                       []]
         self.curr_stack = 0
 
         # This is used by the environment, if it exists
@@ -121,6 +118,7 @@ class CPU:
 
     def changeHead(self, head, value):
         if head is 0:       #nop-a
+            #print "IP head changed externally in {:d} with genome id {:d} to {:d}".format(self.id, self.genome_id, value)
             self.ip = value
         elif head is 1:     #nop-b
             self.read = value
@@ -158,11 +156,8 @@ class CPU:
         self.outputs = []
         self.copy_buffer = []
 
-        self.stackA = []
-        self.stackB = []
-
-        self.stacks = [[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                       [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]]
+        self.stacks = [[],
+                       []]
         self.curr_stack = 0
 
         self.registers = [0, 0, 0]
