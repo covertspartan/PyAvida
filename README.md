@@ -18,25 +18,25 @@ The Basic-Architecture is focused primarily on running efficiently, while still 
 ## Development Roadmap
 
 ### Version 0.1 (current)
-All of the basic tools you need to do an experiment similar to the Lenski et al 2003 paper are present.
-Some bugs still exist, in particular, the scheduler is limited to 10,000 organisms. A refactor is being tested and will be pushed soon.
-This release is primarily a proof-of-concept to show that it is possible to do these types of experiments with a python-based project.
+*All of the basic tools you need to do an experiment similar to the Lenski et al 2003 paper are present.
+*Some bugs still exist, in particular, the scheduler is limited to 10,000 organisms. A refactor is being tested and will be pushed soon.
+*This release is primarily a proof-of-concept to show that it is possible to do these types of experiments with a python-based project.
 
 
 ### Version 0.2 
-Bugfixes, bugfixes, bugfixes
-Implement unit testing and testing framework for all components of the Basic-Architecture
-Implement regression testing for more complex experiments
+*Bugfixes, bugfixes, bugfixes
+*Implement unit testing and testing framework for all components of the Basic-Architecture
+*Implement regression testing for more complex experiments
 
 ### Version 0.3
-Implement additional observers for experiments.
-Implement all Mutation hooks (copy mutations, insertions, deletions, slip mutations)
-Re-profile the code and eliminate as many performance drains in the basic instruction set as possible
+*Implement additional observers for experiments.
+*Implement all Mutation hooks (copy mutations, insertions, deletions, slip mutations)
+*Re-profile the code and eliminate as many performance drains in the basic instruction set as possible
 
 ### Version 0.4
-Finalize the PyAvida object model. Enforce it with assert(isinstance()) statements in all of the Basic-Architecture components.
-Add sexual reproduction
-Add analysis toolchain
+*Finalize the PyAvida object model. Enforce it with assert(isinstance()) statements in all of the Basic-Architecture components.
+*Add sexual reproduction
+*Add analysis toolchain
 
 ### Version 0.5
-Final candidate for 1.0 release. Feature set frozen, bug fixes only.
+*Final candidate for 1.0 release. Feature set frozen, bug fixes only.
