@@ -1,4 +1,4 @@
-from cCPU import BasicCPU
+from CPUs import BasicCPU
 
 
 class DivideMutation:

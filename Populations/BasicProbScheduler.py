@@ -1,4 +1,4 @@
-from cContext import ccontext
+from Context import ccontext
 import random
 
 # A quick and dirty probabilistic priority queue scheduler, based on a d-ary heap

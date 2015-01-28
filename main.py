@@ -1,10 +1,10 @@
-from cCPU import BasicCPU
-from cContext import ccontext
-from cCPU.basic_instruction_set import BasicInstructionSet
-from cPopulation import BasicPopulation
-from cPopulation import MutationHooks
-from cEnvironment import BasicLogic9Enironment
-from cTestingTools import fGetBasicTestOrgs
+from CPUs import BasicCPU
+from Context import ccontext
+from CPUs.basic_instruction_set import BasicInstructionSet
+from Populations import BasicPopulation
+from Populations import MutationHooks
+from Environments import BasicLogic9Enironment
+from TestingTools import fGetBasicTestOrgs
 from Observers import Genebank
 
 import cProfile
@@ -56,17 +56,8 @@ def main():
 
     print "Update {:d}, orgs born: {:d}, average fitness: {:f}, average generation: {:f}".format(ctx.update, population.divide_count, population.average_fitness, population.average_generation)
     for updates in range(0, 100):
-        run_update(75000, population)
+        run_update(300000, population)
         print "Update {:d}, orgs born: {:d}, average fitness: {:f}, average generation: {:f}".format(ctx.update, population.divide_count, population.average_fitness, population.average_generation)
-        # if updates > 34:
-        #     max_fitness = 0
-        #     max_index = -1
-        #     for i, curr_fit in enumerate(population.fitness):
-        #         if curr_fit > max_fitness:
-        #             max_fitness = curr_fit
-        #             max_index = i
-        #     print max_fitness, max_index
-        #     max_cpu = population.pop_list[max_index]
 
 
 

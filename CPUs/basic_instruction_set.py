@@ -1,5 +1,5 @@
-from cContext import ccontext
-from cCPU import BasicCPU
+from Context import ccontext
+from CPUs import BasicCPU
 
 
 #every instruction in the assembly language gets a reference to the cpu it runs on

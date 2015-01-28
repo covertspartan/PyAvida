@@ -1,4 +1,4 @@
-from cContext import ccontext
+from Context import ccontext
 
 # 0 = genotype id
 # 1 = ancestor id
