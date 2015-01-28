@@ -6,7 +6,7 @@ _Copyright 2015, Arthur W. Covert III_
 
 PyAvida is a set of python packages designed to run experiments on populations of "digital organisms". Digital organisms are self-replicating computer programs written in a simplified assembly language. Historically, the C++ project, Avida, has been the leading platform for doing research on digital organism. PyAvida provides the simplified instruction set and tools to run an Avida-like experiment.
 
-Currently, I am targeting development python 2.7.x and the PyPy Just-in-Time compiler. PyAvida will run with the standard python interpreter, but it will be very slow for larger population sizes. Those wishing to work with large populations (simulating more then ~3,000-4,000 digital organisms) should use PyPy to run their experiments.
+Currently, I am targeting development at python 2.7.x and the PyPy Just-in-Time compiler. PyAvida will run with the standard python interpreter, but it will be very slow for larger population sizes. Those wishing to work with large populations (simulating more then ~3,000-4,000 digital organisms) should use PyPy to run their experiments.
 
 PyAvida, at this stage, is more of an educational platform, intended to give students a sandbox to try out new ideas for digital evolution experiments. As time goes on, I hope to develop it into a more sophisticated research tool.
 
