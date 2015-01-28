@@ -124,6 +124,14 @@ class BasicPopulation:
 
         return None
 
+    # Run a single update of the simulation
+    # Schedule and run thirty cpu cycles per living organisms
+    def run_update(self, cpu_cycles):
+        for tick in xrange(0, cpu_cycles):
+            self.speculative_step()
+        self.end_update()
+        return None
+
     def end_update(self):
         length = float(len(self.pop_list))
 

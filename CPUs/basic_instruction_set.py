@@ -1,12 +1,14 @@
-from Context import ccontext
-from CPUs import BasicCPU
+"""
+Basic instruction set derived from the supplemental materials of lenski et al 2003
+"""
 
 
-#every instruction in the assembly language gets a reference to the cpu it runs on
-#every instruction is responsible for advancing the CPUs flow control head
-#so let it be written, so let it be done
+# every instruction in the assembly language gets a reference to the cpu it runs on
+# every instruction is responsible for advancing the CPUs flow control head
+# so let it be written, so let it be done
 class BasicInstructionSet:
 
+    # start by defining the Nops
     @staticmethod
     def nop_a(cpu):
         cpu.increment_ip()
@@ -23,8 +25,8 @@ class BasicInstructionSet:
         cpu.increment_ip()
         return 3
 
-    #figure out which operands we must use and return their register values
-    #@AWC should these helper function be part of the CPU?
+    # helper functions for reading nops and labels
+    # figure out which operands we must use and return their register values
     @staticmethod
     def get_two_registers(cpu):
         op1 = None
@@ -54,40 +56,39 @@ class BasicInstructionSet:
             if nop is not None:
                 label.append(nop)
                 len += 1
-                #max label length hard-coded at 3
+                # max label length hard-coded at 3
                 if len >= 3:
                     break
-            #both of these are invalid states, label not started, label must be longer than 1
+            # both of these are invalid states, label not started, label must be longer than 1
             elif nop is None and len is 0:
                 return None, 0
             elif nop is None and len == 1:
                 return None, 0
-            #end of valid label (len > 1 & len <= 3)
+            # end of valid label (len > 1 & len <= 3)
             elif nop is None and len > 1:
                 break
             pos += 1
-        #print "lenght: {:d}".format(len)
         return label, len
 
-    #search for a given label, normally used with h_search
+    # search for a given label, normally used with h_search
     @staticmethod
-    def findLabelStartPos(cpu, search_label):
+    def find_label_start_position(cpu, search_label):
 
         match_len = len(search_label)
         start_pos = cpu.ip + match_len
         curr_pos = 0
 
-        #search to the end of the string until we find the matching label
+        # search to the end of the string until we find the matching label
         while start_pos + curr_pos < cpu.genome_len and curr_pos is not match_len:
             nop = cpu.nops.get(cpu.genome[start_pos + curr_pos], None)
             if nop is search_label[curr_pos]:
                 curr_pos += 1
-            #if the current position is not a nop, it cannot be a label, so we can
-            #skil past the current search position
+            # if the current position is not a nop, it cannot be a label, so we can
+            # search past the current search position
             elif nop is None:
                 start_pos = start_pos + curr_pos + 1
                 curr_pos = 0
-            #otherwise, the lable could be embedded in other nops and we can go no further
+            # otherwise, the label could be embedded in other nops and we can go no further
             else:
                 start_pos += 1
                 curr_pos = 0
@@ -97,7 +98,6 @@ class BasicInstructionSet:
 
         return None
 
-    #figure out which register to use
     @staticmethod
     def which_register(cpu):
         if cpu.ip + 1 >= cpu.genome_len:
@@ -147,10 +147,6 @@ class BasicInstructionSet:
         else:
             cpu.registers[register] = 0
 
-
-        #print cpu.registers
-        #print cpu.stacks
-
         cpu.increment_ip(1+extra_step)
         return None
 
@@ -159,9 +155,6 @@ class BasicInstructionSet:
         register, extra_step = BasicInstructionSet.which_register(cpu)
 
         cpu.stacks[cpu.curr_stack].append(cpu.registers[register])
-
-        #print cpu.registers
-        #print cpu.stacks
 
         cpu.increment_ip(1+extra_step)
         return None
@@ -188,8 +181,6 @@ class BasicInstructionSet:
 
         cpu.increment_ip(1+extra_step)
 
-        #print cpu.registers
-
         return None
 
     @staticmethod
@@ -197,8 +188,6 @@ class BasicInstructionSet:
         reg1, extra_step = BasicInstructionSet.which_register(cpu)
 
         cpu.registers[reg1] >>= 1
-
-        #print cpu.registers
 
         cpu.increment_ip(1+extra_step)
 
@@ -211,8 +200,6 @@ class BasicInstructionSet:
         cpu.registers[reg1] <<= 1
         cpu.registers[reg1] &= 0xffffffff
 
-        #print bin(cpu.registers[reg1])
-
         cpu.increment_ip(1+extra_step)
 
         return None
@@ -223,8 +210,6 @@ class BasicInstructionSet:
 
         cpu.registers[reg1] += 1
         cpu.registers[reg1] &= 0xffffffff
-
-        #print cpu.registers
 
         cpu.increment_ip(1+extra_step)
 
@@ -237,8 +222,6 @@ class BasicInstructionSet:
         cpu.registers[reg1] -= 1
         cpu.registers[reg1] &= 0xffffffff
 
-#        #print bin(cpu.registers[1])
-
         cpu.increment_ip(1+extra_step)
 
         return None
@@ -249,8 +232,6 @@ class BasicInstructionSet:
 
         cpu.registers[reg1] = cpu.registers[1] + cpu.registers[2]
         cpu.registers[reg1] &= 0xffffffff
-
-        #print cpu.registers
 
         cpu.increment_ip(1+extra_step)
 
@@ -263,8 +244,6 @@ class BasicInstructionSet:
         cpu.registers[reg1] = cpu.registers[2] - cpu.registers[1]
         cpu.registers[reg1] &= 0xffffffff
 
-        #print cpu.registers
-
         cpu.increment_ip(1+extra_step)
 
         return None
@@ -274,7 +253,6 @@ class BasicInstructionSet:
         reg1, extra_step = BasicInstructionSet.which_register(cpu)
 
         cpu.registers[reg1] = ~(cpu.registers[1] & cpu.registers[2]) & 0xffffffff
-
 
         cpu.increment_ip(1+extra_step)
 
@@ -292,14 +270,12 @@ class BasicInstructionSet:
 
         cpu.registers[reg1] = cpu.next_input()
 
-
         cpu.increment_ip(1+extra_step)
         return None
 
     # allocate genome space -- need a max length so that we don't run off the rails
     @staticmethod
     def h_alloc(cpu):
-        #print cpu.genome
         new_len = cpu.genome_len * 2
         if new_len > cpu.genome_max_len:
             new_len = cpu.genome_max_len
@@ -314,10 +290,9 @@ class BasicInstructionSet:
 
         return None
 
-    #big finish
+    # big finish
     @staticmethod
     def h_divide(cpu):
-        #@TODO Some evloved orgs from big-avida rely on restrictions here to self-replicate at the usual time, consider adding such restrictions back in
         # this only works if the write head is in the correct place and the divide checks return true
         if cpu.write is not cpu.read:
 
@@ -372,17 +347,11 @@ class BasicInstructionSet:
             cpu.increment_ip(extra_steps+1)
             return None
 
-
-
         complement_label = [cpu.nop_complement[i] for i in label]
-        #print label
-        #print complement_label
 
-        search_pos = BasicInstructionSet.findLabelStartPos(cpu, complement_label)
-        #print search_pos
+        search_pos = BasicInstructionSet.find_label_start_position(cpu, complement_label)
 
         if search_pos is not None:
-            #print "Found!!!!"
             cpu.flow = search_pos % cpu.genome_len
             cpu.increment_ip(extra_steps+1)
             cpu.registers[1] = cpu.flow - cpu.ip
@@ -458,9 +427,9 @@ class BasicInstructionSet:
         for i in xrange(1, label_len+1):
             nopNum = cpu.nops.get(cpu.copy_buffer[-i], None)
 
-            # prety sure these lines aren't doing anything
-            if len(cpu.copy_buffer) > 48:
-                None
+            # pretty sure these lines aren't doing anything
+            # if len(cpu.copy_buffer) > 48:
+            #     None
 
             if complement_label[-i] is not nopNum:
                 # no match, break out
@@ -477,24 +446,15 @@ class BasicInstructionSet:
     def set_flow(cpu):
         # check the nop, to chose the register, but default to the CX register
         nop, step = BasicInstructionSet.check_for_nop(cpu,2)
-        # nop = cpu.nops.get(cpu.genome[cpu.ip+1], None)
-        # step = 2
-        #
-        # #default to the CX register
-        # if nop is None:
-        #     nop = 2
-        #     step = 1
-
-        #pressumbably, we mod the
         cpu.flow = cpu.registers[nop] % cpu.genome_len
 
         cpu.increment_ip(step)
         return None
 
-    #for now we will keep the instruction set simply as a list
-    #this function will return a dict with all of the instructions in set
-    #it will also return a list of nops and nop complements for pattern matching
-    #if you wish you use a different instruction set, simply override this function
+    # for now we will keep the instruction set simply as a list
+    # this function will return a dict with all of the instructions in set
+    # it will also return a list of nops and nop complements for pattern matching
+    # if you wish you use a different instruction set, simply override this function
     def __init__(self):
         print "Help! Help! I'm being oppressed!"
         self.inst_set = dict()
@@ -538,15 +498,19 @@ class BasicInstructionSet:
 
         self.inst_set['z'] = BasicInstructionSet.set_flow
 
-
-        #let's define nops and nop complements for  quick lookup
+        # let's define nops and nop complements for  quick lookup
         self.nops = {BasicInstructionSet.nop_a: 0, BasicInstructionSet.nop_b: 1, BasicInstructionSet.nop_c: 2}
 
         self.interactive_inst = set((BasicInstructionSet.io, BasicInstructionSet.h_divide))
 
         self.nop_complement = (1, 2, 0)
 
-        #reverse the instruction set for fast decoding.
+        # reverse the instruction set for fast decoding.
         self.decode_inst_set = {}
         for inst in self.inst_set.viewkeys():
             self.decode_inst_set[self.inst_set[inst]] = inst
+
+    # Translate a genome string, composed of single letter instructions
+    # into a genome that may be based to a CPU
+    def encode_genome(self, genome_string):
+        return [self.inst_set[genome_char] for genome_char in genome_string]
