@@ -42,17 +42,9 @@ def main():
 
     cpu = BasicCPU.CPU(ctx, inst_set, build_genome(inst_set, fGetBasicTestOrgs.getDefaultGenome()))
 
-    population = BasicPopulation.BasicPopulation(ctx, cpu, 100, 100, environment)
+    population = BasicPopulation.BasicPopulation(ctx, cpu, 100, 100, environment, genebank)
 
-    mutatator = MutationHooks.DivideMutation(ctx, 0.25)
-
-    # tell the genebank and the population to talk to one another
-    population.register_inject_hook(genebank.inject_hook)
-    genebank.attach_population(population)
-
-    environment.attach_population(population)
-
-    population.register_mutation_hook(mutatator.mutation)
+    MutationHooks.DivideMutation(ctx, 0.25, population)
 
     print "Update {:d}, orgs born: {:d}, average fitness: {:f}, average generation: {:f}".format(ctx.update, population.divide_count, population.average_fitness, population.average_generation)
     for updates in range(0, 100):

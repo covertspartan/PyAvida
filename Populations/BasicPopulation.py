@@ -4,12 +4,11 @@ from BasicProbScheduler import BasicProbScheduler
 #@TODO: implement a full scheduler (once we have a concept of merit)
 class BasicPopulation:
 
-    def __init__(self, ctx, cpu, x=100, y=100, env=None):
+    def __init__(self, ctx, cpu, x=100, y=100, env=None, gb=None):
         self.ctx = ctx
         self.x_size = x
         self.y_size = y
         self.sample_cpy = cpu
-        self.environment = env
 
         self.max_pop_size = self.x_size * self.y_size
 
@@ -49,6 +48,15 @@ class BasicPopulation:
 
         self.inject_hooks = []
         self.mutation_hooks = []
+
+        self.environment = env
+        if self.environment is not None:
+            self.environment.attach_population(self)
+
+        if gb is not None:
+            gb.attach_population(self)
+            self.register_inject_hook(gb.inject_hook)
+
 
     def register_inject_hook(self, func):
         self.inject_hooks.append(func)
