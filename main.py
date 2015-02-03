@@ -42,25 +42,29 @@ def main():
 
     inst_set = BasicInstructionSet()
 
-    environment = BasicLogic9Enironment.BasicLogic9Environment()
+    # environment = BasicLogic9Enironment.BasicLogic9Environment()
 
-    genebank = Genebank.genebank(ctx)
+    # genebank = Genebank.genebank(ctx)
 
     cpu = BasicCPU.CPU(ctx, inst_set, build_genome(inst_set, fGetBasicTestOrgs.getDefaultGenome()))
 
-    population = BasicPopulation.BasicPopulation(ctx, cpu, 100, 100, environment, genebank)
+    for ticks in xrange(0,100):
+        cpu.step()
 
-    MutationHooks.DivideMutation(ctx, 0.25, population)
 
-    print "Update {:d}, orgs born: {:d}, average fitness: {:f}, average generation: {:f}".format(ctx.update, population.divide_count, population.average_fitness, population.average_generation)
-    for updates in range(0, 100):
-        run_update(300000, population)
-        print "Update {:d}, orgs born: {:d}, average fitness: {:f}, average generation: {:f}".format(ctx.update, population.divide_count, population.average_fitness, population.average_generation)
+    # population = BasicPopulation.BasicPopulation(ctx, cpu, 100, 100, environment, genebank)
+
+    # MutationHooks.DivideMutation(ctx, 0.25, population)
+
+    # print "Update {:d}, orgs born: {:d}, average fitness: {:f}, average generation: {:f}".format(ctx.update, population.divide_count, population.average_fitness, population.average_generation)
+    # for updates in range(0, 100):
+    #     run_update(300000, population)
+    #     print "Update {:d}, orgs born: {:d}, average fitness: {:f}, average generation: {:f}".format(ctx.update, population.divide_count, population.average_fitness, population.average_generation)
 
 
 
     # a little code to verify self-replication
-    random_cpu = ctx.random.choice(population.pop_list)
+    # random_cpu = ctx.random.choice(population.pop_list)
 
     def decode_genome(x): return inst_set.decode_inst_set[x]
 

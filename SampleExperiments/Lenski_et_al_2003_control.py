@@ -32,6 +32,8 @@ def main():
     # this gives the digital organisms the ability to be rewarded for performing certain functions
     environment = BasicLogic9Environment()
 
+    environment.only_equals()
+
     # Finally we need a way to see what happened in the experiment
     # The genebank will track every organism and can dump a file at the end
     genebank = Genebank.genebank(ctx)

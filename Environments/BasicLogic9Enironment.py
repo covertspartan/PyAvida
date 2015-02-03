@@ -32,6 +32,18 @@ class BasicLogic9Environment:
 
         self.population_array = []
 
+    def only_equals(self):
+        for i, func in enumerate(self.one_input_functions):
+            if func[1][0] is not 0x100:
+                self.one_input_functions[i] = func[0], (func[1][0], 1)
+
+        for i, func in enumerate(self.two_input_functions):
+            if func[1][0] is not 0x100:
+                self.two_input_functions[i] = func[0], (func[1][0], 1)
+
+        for func in self.two_input_functions:
+            print func
+
     # this defines the set of outputs that are valid for any given input state
     # functionally it becomes a giant hash function implemented with lists and dicts
     def attach_population(self, population):
