@@ -1,3 +1,7 @@
+"""
+Quick and dirty divide and conquer scheduler. It works fine for populations of 10,000 organisms,
+    but breaks on all others. Working on a refactor. -AC
+"""
 from Context import ccontext
 import random
 
@@ -15,6 +19,7 @@ class BasicProbScheduler:
 
         return index
 
+        # calls to python's built in binary search take longer on average than just searching 10 items
         # i = bisect_left(a,x)
         # if i:
         #     return i

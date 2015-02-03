@@ -1,7 +1,6 @@
 from BasicProbScheduler import BasicProbScheduler
 
 # REALLY basic population class
-#@TODO: implement a full scheduler (once we have a concept of merit)
 class BasicPopulation:
 
     def __init__(self, ctx, cpu, x=100, y=100, env=None, gb=None):
@@ -97,7 +96,7 @@ class BasicPopulation:
         if self.pop_list[inject_id].inject_genome(offspring, self.generation[inject_id], fitness, merit):
             self.scheduler.update_merit(inject_id, merit)
 
-    # divide hook to randomly place an offspring
+    # divide hook to randomly place a newly spawned  offspring in the environment
     def divide_hook(self, cpu, offspring):
 
         self.divide_count += 1
@@ -134,12 +133,15 @@ class BasicPopulation:
 
     # Run a single update of the simulation
     # Schedule and run thirty cpu cycles per living organisms
+    # Users may manually call step or speculative_step to run the simulation
+    # This just speeds things up
     def run_update(self, cpu_cycles):
         for tick in xrange(0, cpu_cycles):
             self.speculative_step()
         self.end_update()
         return None
 
+    # end of update cleanup
     def end_update(self):
         length = float(len(self.pop_list))
 

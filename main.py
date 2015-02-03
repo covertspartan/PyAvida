@@ -1,3 +1,9 @@
+"""
+This run script is deprecated. All experiment setups files will go in SampleExperiments from now on.
+
+I'll remove this file before the push next week.
+"""
+
 from CPUs import BasicCPU
 from Context import ccontext
 from CPUs.basic_instruction_set import BasicInstructionSet

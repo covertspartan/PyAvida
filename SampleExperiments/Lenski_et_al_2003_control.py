@@ -51,6 +51,7 @@ def main():
         population.run_update(30 * population.max_pop_size)
         print "Update {:d}, orgs born: {:d}, average fitness: {:f}, average generation: {:f}".format(ctx.update, population.divide_count, population.average_fitness, population.average_generation)
 
+    # dump out every organism that ever lived for post run analysis
     with open("detail-10000","w") as file_pointer:
         genebank.dump_spop_file(file_pointer)
 

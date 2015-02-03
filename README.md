@@ -10,7 +10,7 @@ Currently, I am targeting development at python 2.7.x and the PyPy Just-in-Time 
 
 PyAvida, at this stage, is more of an educational platform, intended to give students a sandbox to try out new ideas for digital evolution experiments. As time goes on, I hope to develop it into a more sophisticated research tool.
 
-The Basic-Architecture provides everything a user needs to do a simple experiments. Users may easily extend or add additional components to do more complex experiments. For example, you could extend BasicPopulation to support multiple sub-populations connected by migration. An example experiment resides in the Lenski_et_al_2003_control.py file.
+The Basic-Architecture provides everything a user needs to do a simple experiments. Users may easily extend or add additional components to do more complex experiments. For example, you could extend BasicPopulation to support multiple sub-populations connected by migration. An example experiment resides in the Lenski_et_al_2003_control.py file. Make sure to add the PyAvida project root to your PYTHONPATH environment variable.
 
 The Basic-Architecture is focused primarily on running efficiently, while still being extensible. No code changes that slow down the Basic-Architecture will be accepted. 
 
