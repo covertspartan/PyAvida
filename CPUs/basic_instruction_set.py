@@ -33,7 +33,12 @@ class BasicInstructionSet:
         op2 = None
         step = 0
 
-        nop = cpu.nops.get(cpu.genome[cpu.ip+1], None)
+        # this type of lookahead, probably shouldn't wrap around the genome
+        if cpu.ip + 1 < cpu.genome_len:
+            nop = cpu.nops.get(cpu.genome[cpu.ip+1], None)
+        else:
+            nop = None
+
         if nop is not None:
             op1 = cpu.registers[nop]
             op2 = cpu.registers[cpu.nop_complement[nop]]
