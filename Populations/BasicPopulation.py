@@ -1,4 +1,5 @@
 from BasicProbScheduler import BasicProbScheduler
+from array import array
 
 # REALLY basic population class
 class BasicPopulation:
@@ -42,6 +43,9 @@ class BasicPopulation:
 
         self.speculative_execution = [0] * self.max_pop_size
 
+        self.gestation_times = array("I", [0] * self.max_pop_size)
+        self.age_limits = array("I", [cpu.genome_len*20 for cpu in self.pop_list])
+
         self.scheduler = BasicProbScheduler(self.merit, self.ctx)
         self.curr = 0
 
@@ -72,12 +76,28 @@ class BasicPopulation:
     # runs CPUs 30 clock ticks ahead of where they're suppose to be, or until they need to interact with the environment
     # avoids pulling CPUs in and out of memory until they actually need to interact with the environment
     def speculative_step(self):
+
         scheduled_id = self.scheduler.schedule_cpu()
+
+        # should the org die of old age?
+        # is the org already dead? (Zero merit)
+        # if so -- find another organism
+        # @todo the next version of the scheduler should not return dead orgs-only position zero could be returned zerod out
+        while self.gestation_times[scheduled_id] >= self.age_limits[scheduled_id] or self.merit[scheduled_id] is 0:
+            # zero out the merit of the dead organism
+            self.merit[scheduled_id] = 0.0
+            self.scheduler.update_merit(scheduled_id, 0.0)
+
+            # schedule a new organism
+            scheduled_id = self.scheduler.schedule_cpu()
 
         if self.speculative_execution[scheduled_id] > 0:
             self.speculative_execution[scheduled_id] -= 1
+            self.gestation_times[scheduled_id] += 1
         else:
             self.speculative_execution[scheduled_id] += self.pop_list[scheduled_id].execute_ahead()
+            self.gestation_times[scheduled_id] += 1
+
 
     # helper function for divide hook
     # inject a genome into a random point in the population
@@ -89,6 +109,8 @@ class BasicPopulation:
         self.merit[inject_id] = merit
         self.generation[inject_id] = cpu.num_divides
         self.speculative_execution[inject_id] = 0
+        self.gestation_times[inject_id] = 0
+        self.age_limits[inject_id] = 20 * len(offspring)
 
         for inject_hook in self.inject_hooks:
             inject_hook(cpu, self.pop_list[inject_id], offspring)
@@ -116,6 +138,7 @@ class BasicPopulation:
         self.fitness[cpu.id] = fitness
         self.merit[cpu.id] = merit
         self.generation[cpu.id] = cpu.num_divides
+        self.gestation_times[cpu.id] = 0
 
         if old_merit is not merit:
             self.scheduler.update_merit(cpu.id, merit)
@@ -135,7 +158,9 @@ class BasicPopulation:
     # Schedule and run thirty cpu cycles per living organisms
     # Users may manually call step or speculative_step to run the simulation
     # This just speeds things up
-    def run_update(self, cpu_cycles):
+    def run_update(self, cpu_cycles=30 * 10000):
+        if self.ctx.update % 1000 is 0:
+            None
         for tick in xrange(0, cpu_cycles):
             self.speculative_step()
         self.end_update()
@@ -148,6 +173,8 @@ class BasicPopulation:
         self.average_fitness = sum(self.fitness) / length
         self.average_merit = sum(self.merit) / length
         self.average_generation = sum(self.generation) / length
+        print "Average length {:f}".format(reduce(lambda x, cpu: x+cpu.genome_len, self.pop_list, 0)/10000)
+        print "Average gestation time {:f}".format(reduce(lambda x, cpu: x+cpu.gestation_time, self.pop_list, 0)/10000)
 
         self.ctx.update += 1
 

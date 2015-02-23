@@ -285,11 +285,14 @@ class BasicInstructionSet:
         if new_len > cpu.genome_max_len:
             new_len = cpu.genome_max_len
 
-        cpu.genome += [BasicInstructionSet.nop_c] * cpu.genome_len
+        add_length = new_len - cpu.genome_len
 
-        cpu.execution_trace += [0] * cpu.genome_len
-        cpu.registers[0] = new_len
-        cpu.genome_len = new_len
+        if add_length > 0:
+            cpu.genome += [BasicInstructionSet.nop_c] * add_length
+
+            cpu.execution_trace += [0] * add_length
+            cpu.registers[0] = len(cpu.genome)
+            cpu.genome_len = len(cpu.genome)
 
         cpu.increment_ip()
 

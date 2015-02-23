@@ -91,6 +91,9 @@ class CPU:
 
         old_merit = self.merit
 
+        del self.genome
+        del self.original_genome
+
         self.genome = genome
         self.original_genome = tuple(genome)
         self.genome_len = len(genome)
@@ -191,7 +194,8 @@ class CPU:
             self.step()
             count += 1
 
-        return count
+        # account for the first call to step
+        return count-1
 
     def register_divide_hook(self, func):
         self.divide_hooks.append(func)
